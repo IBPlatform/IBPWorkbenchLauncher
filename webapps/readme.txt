@@ -1,1 +1,1 @@
-Put WAR files here.
+This directory should contain the WAR file for workbench and other web-based tools.
