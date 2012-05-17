@@ -75,7 +75,7 @@ public class Launcher {
         launchWorkbenchItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Program.launch("http://localhost/");
+                Program.launch("http://localhost:18080/ibpworkbench/");
             }
         });
         
