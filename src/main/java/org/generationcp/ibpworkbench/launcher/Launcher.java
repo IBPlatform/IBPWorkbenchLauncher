@@ -85,26 +85,19 @@ public class Launcher {
             public void widgetSelected(SelectionEvent e) {
                 shell.dispose();
                 
-                if (mysqlProcess != null) {
-                    mysqlProcess.destroy();
-                }
-                
-                if (tomcatStartProcess != null) {
-                    tomcatStartProcess.destroy();
-                }
-                
+                shutdownMysql();
                 shutdownWebApps();
             }
         });
     }
     
     protected void initializeMysql() {
-        String workingDirPath = mysqlBinDir;
+        File workingDirPath = new File(mysqlBinDir).getAbsoluteFile();
         String mysqldPath = "mysqld.exe";
         String myIniPath =  "../my.ini";
         
-        ProcessBuilder pb = new ProcessBuilder(mysqldPath, "--defaults-file=" + myIniPath);
-        pb.directory(new File(workingDirPath).getAbsoluteFile());
+        ProcessBuilder pb = new ProcessBuilder(workingDirPath.getAbsolutePath() + File.separator + mysqldPath, "--defaults-file=" + myIniPath);
+        pb.directory(workingDirPath);
         try {
             mysqlProcess = pb.start();
         }
@@ -135,7 +128,24 @@ public class Launcher {
         }
     }
     
+    protected void shutdownMysql() {
+        if (mysqlProcess != null) {
+            mysqlProcess.destroy();
+        }
+        
+        try {
+            mysqlProcess.waitFor();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
     protected void shutdownWebApps() {
+        if (tomcatStartProcess != null) {
+            tomcatStartProcess.destroy();
+        }
+        
         File tomcatBinPath = new File(tomcatBinDir).getAbsoluteFile();
         String tomcatPath = "shutdown.bat";
         
