@@ -16,23 +16,25 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Launcher {
+    private Logger log = LoggerFactory.getLogger(Launcher.class);
     
     private Display display;
     private Shell shell;
     private Tray tray;
     
     private String mysqlBinDir = "mysql/bin";
-    private String tomcatBinDir = "tomcat/bin";
+    private String tomcatDir = "tomcat";
     
     private Menu menu;
     private MenuItem launchWorkbenchItem;
     private MenuItem exitItem;
     private TrayItem trayItem;
     private Process mysqlProcess;
-    private Process tomcatStartProcess;
-    private Process tomcatStopProcess;
+    private TomcatServer tomcatServer;
 
     protected void initializeComponents() {
         display = new Display ();
@@ -75,7 +77,12 @@ public class Launcher {
         launchWorkbenchItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Program.launch("http://localhost:18080/ibpworkbench/");
+                try {
+                    Program.launch("http://localhost:18080/ibpworkbench/");
+                }
+                catch (Exception ex) {
+                    log.error("Cannot launch workbench due to error", ex);
+                }
             }
         });
         
@@ -83,6 +90,8 @@ public class Launcher {
         exitItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                log.debug("Exiting workbench launcher");
+                
                 shell.dispose();
                 
                 shutdownMysql();
@@ -92,6 +101,8 @@ public class Launcher {
     }
     
     protected void initializeMysql() {
+        log.trace("Starting MySQL...");
+        
         File workingDirPath = new File(mysqlBinDir).getAbsoluteFile();
         String mysqldPath = "mysqld.exe";
         String myIniPath =  "../my.ini";
@@ -107,28 +118,18 @@ public class Launcher {
     }
     
     protected void initializeWebApps() {
-        File tomcatBinPath = new File(tomcatBinDir).getAbsoluteFile();
-        String tomcatPath = "startup.bat";
+        log.trace("Starting Tomcat...");
         
-        String platform = SWT.getPlatform();
-        if (platform.equals("win32")) {
-            tomcatPath = "startup.bat";
-        }
-        else {
-            tomcatPath = "startup.sh";
-        }
+        File tomcatBinPath = new File(tomcatDir).getAbsoluteFile();
+        tomcatServer = new TomcatServer();
+        tomcatServer.setCatalinaHome(tomcatBinPath.getAbsolutePath());
         
-        ProcessBuilder pb = new ProcessBuilder(tomcatBinPath.getAbsolutePath() + File.separator + tomcatPath);
-        pb.directory(tomcatBinPath);
-        try {
-            tomcatStartProcess = pb.start();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        tomcatServer.start();
     }
     
     protected void shutdownMysql() {
+        log.trace("Stopping MySQL...");
+        
         if (mysqlProcess != null) {
             mysqlProcess.destroy();
         }
@@ -137,41 +138,14 @@ public class Launcher {
             mysqlProcess.waitFor();
         }
         catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Interrupted while waiting for MySQL to stop", e);
         }
     }
     
     protected void shutdownWebApps() {
-        if (tomcatStartProcess != null) {
-            tomcatStartProcess.destroy();
-        }
+        log.trace("Stopping Tomcat...");
         
-        File tomcatBinPath = new File(tomcatBinDir).getAbsoluteFile();
-        String tomcatPath = "shutdown.bat";
-        
-        String platform = SWT.getPlatform();
-        if (platform.equals("win32")) {
-            tomcatPath = "shutdown.bat";
-        }
-        else {
-            tomcatPath = "shutdown.sh";
-        }
-        
-        ProcessBuilder pb = new ProcessBuilder(tomcatBinPath.getAbsolutePath() + File.separator + tomcatPath);
-        pb.directory(tomcatBinPath);
-        try {
-            tomcatStopProcess = pb.start();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        try {
-            tomcatStopProcess.waitFor();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        tomcatServer.stopServer();
     }
     
     public void open() {

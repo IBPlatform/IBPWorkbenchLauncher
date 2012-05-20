@@ -18,6 +18,6 @@
     <minVersion>1.5.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
-    <opt>-Djava.library.path=ibpworkbench_launcher.jar</opt>
+    <opt>-javaagent:ibpworkbench_launcher.jar -Djava.library.path=ibpworkbench_launcher.jar</opt>
   </jre>
 </launch4jConfig>
