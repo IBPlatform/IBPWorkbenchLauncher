@@ -29,6 +29,8 @@ public class Launcher {
     private String mysqlBinDir = "mysql/bin";
     private String tomcatDir = "tomcat";
     
+    private String workbenchUrl = "http://localhost:18080/ibpworkbench/";
+    
     private Menu menu;
     private MenuItem launchWorkbenchItem;
     private MenuItem exitItem;
@@ -78,7 +80,7 @@ public class Launcher {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 try {
-                    Program.launch("http://localhost:18080/ibpworkbench/");
+                    Program.launch(workbenchUrl);
                 }
                 catch (Exception ex) {
                     log.error("Cannot launch workbench due to error", ex);
@@ -149,6 +151,13 @@ public class Launcher {
     }
     
     public void open() {
+        try {
+            Program.launch(workbenchUrl);
+        }
+        catch (Exception ex) {
+            log.error("Cannot launch workbench due to error", ex);
+        }
+        
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) display.sleep();
         }
