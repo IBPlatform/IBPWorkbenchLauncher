@@ -64,30 +64,30 @@
          Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)
          Java AJP  Connector: /docs/config/ajp.html
          APR (HTTP/AJP) Connector: /docs/apr.html
-         Define a non-SSL HTTP/1.1 Connector on port 8080
+         Define a non-SSL HTTP/1.1 Connector on port 18080
     -->
     <Connector port="18080" protocol="HTTP/1.1" 
                connectionTimeout="20000" 
-               redirectPort="8443" />
+               redirectPort="18443" />
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
-               port="8080" protocol="HTTP/1.1" 
+               port="18080" protocol="HTTP/1.1" 
                connectionTimeout="20000" 
-               redirectPort="8443" />
+               redirectPort="18443" />
     -->           
-    <!-- Define a SSL HTTP/1.1 Connector on port 8443
+    <!-- Define a SSL HTTP/1.1 Connector on port 18443
          This connector uses the JSSE configuration, when using APR, the 
          connector should be using the OpenSSL style configuration
          described in the APR documentation -->
     <!--
-    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
+    <Connector port="18443" protocol="HTTP/1.1" SSLEnabled="true"
                maxThreads="150" scheme="https" secure="true"
                clientAuth="false" sslProtocol="TLS" />
     -->
 
-    <!-- Define an AJP 1.3 Connector on port 8009 -->
-    <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+    <!-- Define an AJP 1.3 Connector on port 18009 -->
+    <Connector port="18009" protocol="AJP/1.3" redirectPort="18443" />
 
 
     <!-- An Engine represents the entry point (within Catalina) that processes
