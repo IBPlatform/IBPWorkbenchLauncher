@@ -76,6 +76,7 @@ Section "install"
     File /r "jre"
     File /r "mysql"
     File /r "tomcat"
+    File /r "tools"
     
     # Add any other files for the install directory (license files, app data, etc) here
  
