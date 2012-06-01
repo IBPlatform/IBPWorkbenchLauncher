@@ -13,6 +13,7 @@
   <stayAlive>false</stayAlive>
   <manifest></manifest>
   <icon>launcher.ico</icon>
+  <var>PATH=%PATH%;tools/flapjack</var>
   <jre>
     <path>./jre</path>
     <minVersion>1.5.0</minVersion>
