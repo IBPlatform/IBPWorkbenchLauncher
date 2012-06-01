@@ -37,6 +37,13 @@ public class Launcher {
     private TrayItem trayItem;
     private Process mysqlProcess;
     private TomcatServer tomcatServer;
+    
+    private File icisIni;
+    private File icisIniBakFile;
+    
+    protected void initialize() {
+        renameIcisIni();
+    }
 
     protected void initializeComponents() {
         display = new Display ();
@@ -98,6 +105,7 @@ public class Launcher {
                 
                 shutdownMysql();
                 shutdownWebApps();
+                revertIcisIni();
             }
         });
     }
@@ -150,7 +158,33 @@ public class Launcher {
         tomcatServer.stopServer();
     }
     
+    protected void renameIcisIni() {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        icisIni = new File(tempDir + File.separator + "ICIS.ini") ;
+        icisIniBakFile = new File(tempDir + File.separator + "ICIS.ini.bak") ;
+        
+        if (icisIni.exists()) {
+            boolean result = icisIni.renameTo(icisIniBakFile);
+            log.debug("Renamed ICIS.ini to ICIS.ini.bak: {}", result);
+        }
+    }
+    
+    protected void revertIcisIni() {
+        if (icisIniBakFile.exists()) {
+            boolean result = icisIniBakFile.renameTo(icisIni);
+            log.debug("Renamed ICIS.ini.bak to ICIS.ini: {}", result);
+        }
+    }
+    
     public void open() {
+        try {
+            log.debug("Sleeping for 5 seconds to allow tomcat to startup");
+            Thread.sleep(5000);
+        }
+        catch (InterruptedException e) {
+            log.error("Sleep interrupted", e);
+        }
+        
         try {
             Program.launch(workbenchUrl);
         }
@@ -164,6 +198,7 @@ public class Launcher {
     }
     
     public void assemble() {
+        initialize();
         initializeComponents();
         initializeActions();
         initializeMysql();
