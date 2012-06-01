@@ -28,7 +28,10 @@
 
 # This is the size (in kB) of all the files copied into "Program Files"
 !define INSTALLSIZE 7233
- 
+
+#SetCompressor /FINAL /SOLID lzma
+#SetCompressorDictSize 128
+
 RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on)
  
 #InstallDir "$PROGRAMFILES\${COMPANYNAME}\${APPNAME}"
@@ -72,6 +75,7 @@ Section "install"
     File "ibpworkbench.exe"
     File "installer.ico"
     File "ibpworkbench_launcher.jar"
+    File /r "documentation"
     File /r "images"
     File /r "jre"
     File /r "mysql"
