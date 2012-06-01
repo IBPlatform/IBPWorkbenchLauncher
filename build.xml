@@ -54,6 +54,7 @@
     <property name="webapps.dir" location="webapps"/>
     <property name="tools.dir" location="tools"/>
 	<property name="tools_conf.dir" location="tools_conf"/>
+	<property name="documentation.dir" location="documentation"/>
     <property name="launch4j.dir" location="launch4j"/>
     <property name="images.dir" location="images"/>
     <property name="dist.dir" value="E:/dist"/>
@@ -202,14 +203,14 @@
     </target>
     
     <target name="update-conf-files" description="Update the configuration files">
-        <copy todir="${dist.dir}" verbose="yes" overwrite="yes">
+        <copy todir="${dist.dir}" overwrite="yes" verbose="yes">
             <fileset dir="${installers_conf.dir}"/>
         </copy>
     </target>
     
     <target name="copy-webapps" description="Copy webapps to Tomcat">
         <!-- Copy the web apps to tomcat -->
-        <copy todir="${dist.dir}/tomcat/webapps">
+        <copy todir="${dist.dir}/tomcat/webapps" overwrite="yes" verbose="yes">
             <fileset dir="${webapps.dir}/${database}">
                 <exclude name="readme.txt"/>
             </fileset>
@@ -232,7 +233,15 @@
         </copy>
     </target>
     
-    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-webapps,copy-tools" description="Copy necessary files on the distribution directory">
+    <target name="copy-documentation" description="Copy documentation and sample files">
+        <copy todir="${dist.dir}/documentation" overwrite="true" verbose="true">
+            <fileset dir="${documentation.dir}">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-webapps,copy-tools,update-tools-conf,copy-documentation" description="Copy necessary files on the distribution directory">
     </target>
     
     <target name="dist-start-mysqld" description="Starts the MySQL daemon">
@@ -282,23 +291,56 @@
         -->
         
         <!-- Initialize the local database -->
+        <if>
+            <or>
+            <equals arg1="${database}" arg2="chickpea"/>
+            <equals arg1="${database}" arg2="cowpea"/>
+            </or>
+        <then>
+            <!-- Scripts that will be run for 'chickpea' and 'cowpea' crop database -->
+            <foreach target="run_script_local" param="sqlFile">
+                <path>
+                    <fileset dir="${crop.database.dir}/local/${database}">
+                        <include name="**/*.sql"/>
+                    </fileset>
+                </path>
+            </foreach>
+        </then>
+        <else>
+            <!-- Scripts that will be run for crop database other than 'chickpea' and 'cowpea' -->
+            <foreach target="run_script_local" param="sqlFile">
+                <path>
+                    <fileset dir="${IBDBScripts.dir}">
+                        <include name="IBDBv1_Workbench_Project.sql"/>
+                    </fileset>
+                    <fileset dir="${IBDBScripts.dir}">
+                        <include name="IBDBv1_DMS.sql"/>
+                        <include name="IBDBv1_GMS-LOCAL.sql"/>
+                        <include name="IBDBv1_IMS.sql"/>
+                    </fileset>
+                </path>
+            </foreach>
+        </else>
+        </if>
+        
+        <!-- Scripts that will be run for any crop database -->
         <foreach target="run_script_local" param="sqlFile">
             <path>
-            <fileset dir="${IBDBScripts.dir}">
-                <include name="IBDBv1_DMS.sql"/>
-                <include name="IBDBv1_GMS-LOCAL.sql"/>
-                <include name="IBDBv1_IMS.sql"/>
-                <include name="IBDBv1_Workbench_Project.sql"/>
-                <include name="IMS_Sample_Data.sql"/>
-            </fileset>
+                <fileset dir="${IBDBScripts.dir}">
+                    <include name="IBDBv1_Workbench_Project.sql"/>
+                    <include name="IBDBv1_GDMS_User.sql"/>
+                </fileset>
             </path>
         </foreach>
 
         <!-- Initialize the central database -->
         <foreach target="run_script_central" param="sqlFile">
             <path>
-                <fileset dir="${crop.database.dir}/${database}">
+                <fileset dir="${crop.database.dir}/central/${database}">
                     <include name="**/*.sql"/>
+                </fileset>
+                <fileset dir="${IBDBScripts.dir}">
+                    <include name="IBDBv1_GDMS_User.sql"/>
                 </fileset>
             </path>
         </foreach>
@@ -343,6 +385,7 @@
         </copy>
         
         <exec dir="${dist.dir}" executable="${makensis.path}">
+            <arg value="/P5"/>
             <arg value="install.nsi"/>
         </exec>
         
