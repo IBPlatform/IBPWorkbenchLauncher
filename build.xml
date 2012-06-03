@@ -57,14 +57,14 @@
 	<property name="documentation.dir" location="documentation"/>
     <property name="launch4j.dir" location="launch4j"/>
     <property name="images.dir" location="images"/>
-    <property name="dist.dir" value="E:/dist"/>
+    <property name="dist.dir" value="C:/dist"/>
     <property name="nsis.dir" location="nsis"/>
     
     <property name="IBDBScripts.dir" location="../IBDBScripts"/>
     <property name="crop.database.dir" location="crop_databases"/>
     
-    <property name="makensis.path" value="C:/Program Files (x86)/NSIS/makensis.exe"/>
-    <property name="launch4j.path" value="C:/Program Files (x86)/Launch4j/launch4jc.exe"/>
+    <property name="makensis.path" value="C:/Program Files/NSIS/makensis.exe"/>
+    <property name="launch4j.path" value="C:/Program Files/Launch4j/launch4jc.exe"/>
     
     <property name="dist.mysql.path" value="${dist.dir}/mysql/bin/mysql.exe"/>
     <property name="dist.mysqld.path" value="${dist.dir}/mysql/bin/mysqld.exe"/>
@@ -227,7 +227,7 @@
     
     <target name="update-tools-conf" description="Update tools configuration">
         <copy todir="${dist.dir}/tools" overwrite="true" verbose="true">
-            <fileset dir="${tools_conf.dir}">
+            <fileset dir="${tools_conf.dir}/${database}">
                 <exclude name="readme.txt"/>
             </fileset>
         </copy>
@@ -300,6 +300,11 @@
             <!-- Scripts that will be run for 'chickpea' and 'cowpea' crop database -->
             <foreach target="run_script_local" param="sqlFile">
                 <path>
+                    <fileset dir="${IBDBScripts.dir}">
+                        <include name="IBDBv1_DMS.sql"/>
+                        <include name="IBDBv1_GMS-LOCAL.sql"/>
+                        <include name="IBDBv1_IMS.sql"/>
+                    </fileset>
                     <fileset dir="${crop.database.dir}/local/${database}">
                         <include name="**/*.sql"/>
                     </fileset>
@@ -347,7 +352,7 @@
     </target>
     
     <target name="use-release-conf">
-        <copy todir="${dist.dir}" overwrite="true">
+        <copy todir="${dist.dir}" overwrite="true" verbose="true">
             <fileset dir="${installers_release_conf.dir}"/>
         </copy>
     </target>
