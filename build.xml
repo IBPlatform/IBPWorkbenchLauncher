@@ -53,8 +53,9 @@
     <property name="installers_release_conf.dir" location="installers_release_conf"/>
     <property name="webapps.dir" location="webapps"/>
     <property name="tools.dir" location="tools"/>
-	<property name="tools_conf.dir" location="tools_conf"/>
-	<property name="documentation.dir" location="documentation"/>
+    <property name="tools_conf.dir" location="tools_conf"/>
+    <property name="documentation.dir" location="documentation"/>
+    <property name="demo_scripts.dir" location="demo_scripts"/>
     <property name="launch4j.dir" location="launch4j"/>
     <property name="images.dir" location="images"/>
     <property name="dist.dir" value="C:/dist"/>
@@ -71,6 +72,7 @@
     
     <property name="mysql.port" value="13306"/>
     <property name="run_script.path" location="crop_databases/run_script.bat"/>
+    <property name="stop_mysql_script.path" location="crop_databases/stop_mysql.bat"/>
     
     <property name="package.dir" value="org" />
 
@@ -96,7 +98,7 @@
      ********************************************************** -->
 
     <target name="build" depends="clean,compile,jar,del-build-dir" description="Compile optimized versions for deployment">
-        <echo>You can also run the "nsis" target to create the installer file.</echo>
+        <echo>You can also run the "make_installer" target to create the distribution directory and the installer file.</echo>
     </target>
     
     <!-- *******************************************************************
@@ -241,7 +243,15 @@
         </copy>
     </target>
     
-    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-webapps,copy-tools,update-tools-conf,copy-documentation" description="Copy necessary files on the distribution directory">
+    <target name="copy-demo-scripts" description="Copy demo scripts">
+        <copy todir="${dist.dir}/demo_scripts" overwrite="true" verbose="true">
+            <fileset dir="${demo_scripts.dir}">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-webapps,copy-tools,update-tools-conf,copy-documentation,copy-demo-scripts" description="Copy necessary files on the distribution directory">
     </target>
     
     <target name="dist-start-mysqld" description="Starts the MySQL daemon">
@@ -251,8 +261,14 @@
         
         <echo>Sleeping for 10 seconds to allow the MySQL server to start</echo>
         <sleep seconds="10"/>
+    </target>
+    
+    <target name="dist-stop-mysqld" description="Stop the MySQL daemon">
+        <exec dir="${dist.dir}/mysql/bin" executable="${stop_mysql_script.path}" spawn="false">
+        </exec>
         
-        <echo>Make sure you end the mysqld process once you're done.</echo>
+        <echo>Sleeping for 5 seconds to allow the MySQL server to shutdown</echo>
+        <sleep seconds="5"/>
     </target>
     
     <target name="dist-initialize-database" description="Initializes the database with necessary data based on the 'database' parameter.">
@@ -270,25 +286,6 @@
             GRANT ALL ON ibdb_${database}_local.* TO 'local'@'localhost' IDENTIFIED BY 'local';
             FLUSH PRIVILEGES;
         </sql>
-        
-        
-        <!-- We can run SQL files like this but Ant seems to have some problems with SQL syntax -->
-        <!--
-        <sql userid="root" password="" url="jdbc:mysql://localhost:13306/ibdb_${database}_local" driver="com.mysql.jdbc.Driver">
-            <fileset dir="${IBDBScripts.dir}">
-                <include name="IBDBv1_DMS.sql"/>
-                <include name="IBDBv1_GMS-LOCAL.sql"/>
-                <include name="IBDBv1_IMS.sql"/>
-                <include name="IBDBv1_Workbench_Project.sql"/>
-                <include name="IMS_Sample_Data.sql"/>
-            </fileset>
-        </sql>
-        <sql userid="root" password="" url="jdbc:mysql://localhost:13306/ibdb_${database}_central" driver="com.mysql.jdbc.Driver">
-            <fileset dir="${crop.database.dir}/${database}">
-                <include name="**/*.sql"/>
-            </fileset>
-        </sql>
-        -->
         
         <!-- Initialize the local database -->
         <if>
@@ -374,12 +371,14 @@
     </target>
     
     <target name="dist-clean">
+        <!-- TODO: We can actually stop any running workbench here by using the "taskkill" command -->
+        
         <delete dir="${dist.dir}"/>
     </target>
 
-    <target name="dist" depends="dist-clean, dist-mkdir, launch4j, dist-create, dist-start-mysqld, dist-initialize-database, use-release-conf" description="">
+    <target name="dist" depends="dist-clean, dist-mkdir, launch4j, dist-create, dist-start-mysqld, dist-initialize-database, use-release-conf, dist-stop-mysqld" description="">
         <echo>Distribution directory created.</echo>
-        <echo>Make sure you end the mysqld process if you plan to run the 'nsis' target.</echo>
+        <echo>You can run the 'nsis' target now if you want to create the installer</echo>
     </target>
     
     <target name="nsis" description="Copy NSIS files on the distribution directory in preparation for creating the installer">
@@ -395,5 +394,8 @@
         </exec>
         
         <echo>The installer file is ${dist.dir}\ibpworkbench-win32.exe</echo>
+    </target>
+    
+    <target name="make_installer" depends="dist, nsis" description="Build the distribution directory and create the installer">
     </target>
 </project>
