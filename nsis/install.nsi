@@ -76,6 +76,7 @@ Section "install"
     File "installer.ico"
     File "ibpworkbench_launcher.jar"
     File /r "documentation"
+    File /r "demo_scripts"
     File /r "images"
     File /r "jre"
     File /r "mysql"
@@ -90,7 +91,14 @@ Section "install"
     # Start Menu
     CreateDirectory "$SMPROGRAMS\${APPNAME}"
     CreateShortCut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\ibpworkbench.exe" "" "$INSTDIR\installer.ico"
- 
+    CreateShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\ibpworkbench.exe"
+    
+    # Create shortcuts for demo scripts
+    SetOutPath "$INSTDIR\demo_scripts\"
+    CreateShortCut "$DESKTOP\Initialize Workbench Tutorial.lnk" "$INSTDIR\demo_scripts\01_ibdb_cowpea_local-1-Start.bat"
+    CreateShortCut "$DESKTOP\Initialize Fieldbook Tutorial.lnk" "$INSTDIR\demo_scripts\02_ibdb_cowpea_local-5-F3_Nursery-arlett.bat"
+    CreateShortCut "$DESKTOP\Initialize Genotyping database Tutorial.lnk" "$INSTDIR\demo_scripts\03_ibdb_cowpea_local-gdms.bat"
+    
     # Registry information for add/remove programs
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
@@ -129,7 +137,15 @@ Section "uninstall"
     Delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
     # Try to remove the Start Menu folder - this will only happen if it is empty
     Rmdir "$SMPROGRAMS\${APPNAME}"
- 
+    
+    # Remove the desktop shortcut
+    Delete "$DESKTOP\${APPNAME}.lnk"
+    
+    # Create shortcuts for demo scripts
+    Delete "$DESKTOP\Initialize Workbench Tutorial.lnk"
+    Delete "$DESKTOP\Initialize Fieldbook Tutorial.lnk"
+    Delete "$DESKTOP\Initialize Genotyping database Tutorial.lnk"
+    
     # Remove files
     #Delete "ibpworkbench.exe"
     #Delete "installer.ico"
