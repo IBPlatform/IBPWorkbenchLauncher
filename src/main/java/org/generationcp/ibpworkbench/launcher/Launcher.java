@@ -125,6 +125,16 @@ public class Launcher {
         catch (IOException e) {
             e.printStackTrace();
         }
+        
+        // TODO: try connecting to MySQL instead of sleeping here
+        // this is to ensure that MySQL is ready before Tomcat is started
+        try {
+            log.debug("Sleeping for 10 seconds to allow mysql to startup");
+            Thread.sleep(10000);
+        }
+        catch (InterruptedException e) {
+            log.error("Sleep interrupted", e);
+        }
     }
     
     protected void initializeWebApps() {
@@ -135,6 +145,9 @@ public class Launcher {
         tomcatServer.setCatalinaHome(tomcatBinPath.getAbsolutePath());
         
         tomcatServer.start();
+        
+        // TODO: try getting the "/" path to make sure that tomcat has started
+        // before hiding the splash screen
     }
     
     protected void shutdownMysql() {
