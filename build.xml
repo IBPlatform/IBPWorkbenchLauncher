@@ -288,49 +288,17 @@
         </sql>
         
         <!-- Initialize the local database -->
-        <if>
-            <or>
-            <equals arg1="${database}" arg2="chickpea"/>
-            <equals arg1="${database}" arg2="cowpea"/>
-            </or>
-        <then>
-            <!-- Scripts that will be run for 'chickpea' and 'cowpea' crop database -->
-            <foreach target="run_script_local" param="sqlFile">
-                <path>
-                    <fileset dir="${IBDBScripts.dir}">
-                        <include name="IBDBv1_DMS.sql"/>
-                        <include name="IBDBv1_GMS-LOCAL.sql"/>
-                        <include name="IBDBv1_IMS.sql"/>
-                    </fileset>
-                    <fileset dir="${crop.database.dir}/local/${database}">
-                        <include name="**/*.sql"/>
-                    </fileset>
-                </path>
-            </foreach>
-        </then>
-        <else>
-            <!-- Scripts that will be run for crop database other than 'chickpea' and 'cowpea' -->
-            <foreach target="run_script_local" param="sqlFile">
-                <path>
-                    <fileset dir="${IBDBScripts.dir}">
-                        <include name="IBDBv1_Workbench_Project.sql"/>
-                    </fileset>
-                    <fileset dir="${IBDBScripts.dir}">
-                        <include name="IBDBv1_DMS.sql"/>
-                        <include name="IBDBv1_GMS-LOCAL.sql"/>
-                        <include name="IBDBv1_IMS.sql"/>
-                    </fileset>
-                </path>
-            </foreach>
-        </else>
-        </if>
-        
-        <!-- Scripts that will be run for any crop database -->
         <foreach target="run_script_local" param="sqlFile">
             <path>
                 <fileset dir="${IBDBScripts.dir}">
+                    <include name="IBDBv1_DMS.sql"/>
+                    <include name="IBDBv1_GMS-LOCAL.sql"/>
+                    <include name="IBDBv1_IMS.sql"/>
                     <include name="IBDBv1_Workbench_Project.sql"/>
                     <include name="IBDBv1_GDMS_User.sql"/>
+                </fileset>
+                <fileset dir="${crop.database.dir}/local/${database}">
+                    <include name="**/*.sql"/>
                 </fileset>
             </path>
         </foreach>
