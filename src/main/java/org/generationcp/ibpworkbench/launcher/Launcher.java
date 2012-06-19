@@ -14,17 +14,31 @@ package org.generationcp.ibpworkbench.launcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
@@ -34,14 +48,14 @@ import org.slf4j.LoggerFactory;
 public class Launcher {
     private Logger log = LoggerFactory.getLogger(Launcher.class);
     
-    private Display display;
-    private Shell shell;
-    private Tray tray;
-    
     private String mysqlBinDir = "mysql/bin";
     private String tomcatDir = "tomcat";
     
     private String workbenchUrl = "http://localhost:18080/ibpworkbench/";
+    
+    private Display display;
+    private Shell shell;
+    private Tray tray;
     
     private Menu menu;
     private MenuItem launchWorkbenchItem;
@@ -50,16 +64,45 @@ public class Launcher {
     private Process mysqlProcess;
     private TomcatServer tomcatServer;
     
+    private Label splashLabel;
+    private Label progressLabel;
+    private ProgressBar progressBar;
+    
     private File icisIni;
     private File icisIniBakFile;
     
-    protected void initialize() {
-        renameIcisIni();
-    }
+    private long mysqlHeadstartMillis = 1000;
+    private long tomcatHeadstartMillis = 2000;
+
+    private StartupThread startupThread;
 
     protected void initializeComponents() {
         display = new Display ();
-        shell = new Shell(display);
+        shell = new Shell(display, SWT.NO_TRIM | SWT.INHERIT_DEFAULT);
+        shell.setText("IBP Workbench");
+        shell.setSize(640, 480);
+        
+        // center shell to primary monitor
+        Monitor monitor = display.getPrimaryMonitor();
+        Rectangle monitorBounds = monitor.getBounds();
+        
+        Rectangle bounds = shell.getBounds();
+        int x = (monitorBounds.x + (monitorBounds.width / 2)) - (bounds.width / 2);
+        int y = (monitorBounds.y + (monitorBounds.height / 2)) - (bounds.height / 2);
+        shell.setLocation(x, y);
+        
+        // add the splash image
+        splashLabel = new Label(shell, SWT.NONE);
+        splashLabel.setImage(new Image(display, "images/splash.png"));
+        
+        // add progress label
+        progressLabel = new Label(shell, SWT.NONE);
+        progressLabel.moveAbove(splashLabel);
+        progressLabel.setText("Loading...");
+        
+        // add the progress bar
+        progressBar = new ProgressBar(shell, SWT.HORIZONTAL | SWT.INDETERMINATE);
+        progressBar.moveAbove(splashLabel);
         
         // get the System Tray
         tray = display.getSystemTray ();
@@ -82,6 +125,22 @@ public class Launcher {
         
         exitItem = new MenuItem(menu, SWT.PUSH);
         exitItem.setText("Exit");
+    }
+    
+    protected void initializeLayout() {
+        Rectangle shellBounds = shell.getBounds();
+        
+        splashLabel.setBounds(0, 0, shellBounds.width, shellBounds.height);
+        
+        final int margin = 10;
+//        Point progressLabelPreferredSize = progressLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        Point progressBarPreferredSize = progressBar.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        
+//        int progressLabelY = shellBounds.height - margin - progressBarPreferredSize.y - margin - progressLabelPreferredSize.y;
+        int progressBarY = shellBounds.height - margin - progressBarPreferredSize.y;
+        
+//        progressLabel.setBounds(margin, progressLabelY, shellBounds.width - (2* margin), progressLabelPreferredSize.y);
+        progressBar.setBounds(margin, progressBarY, shellBounds.width - (2 * margin), progressBarPreferredSize.y);
     }
     
     protected void initializeActions() {
@@ -113,6 +172,13 @@ public class Launcher {
             public void widgetSelected(SelectionEvent e) {
                 log.debug("Exiting workbench launcher");
                 
+                try {
+                    startupThread.join();
+                }
+                catch (InterruptedException e1) {
+                    log.error("Interrupted while waiting for startup thread to stop", e);
+                }
+                
                 shell.dispose();
                 
                 shutdownMysql();
@@ -138,18 +204,50 @@ public class Launcher {
             e.printStackTrace();
         }
         
-        // TODO: try connecting to MySQL instead of sleeping here
-        // this is to ensure that MySQL is ready before Tomcat is started
+        // give Tomcat a headstart
         try {
-            log.debug("Sleeping for 10 seconds to allow mysql to startup");
-            Thread.sleep(10000);
+            Thread.sleep(mysqlHeadstartMillis);
         }
         catch (InterruptedException e) {
-            log.error("Sleep interrupted", e);
+            log.error("Interrupted while waiting for MySQL to start", e);
+        }
+        
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch (ClassNotFoundException e) {
+            log.error("Error encountered while trying to load JDBC Driver", e);
+        }
+        
+        Connection conn = null;
+        while (true) {
+            try {
+                conn = DriverManager.getConnection("jdbc:mysql://localhost:13306/?user=root");
+                break;
+            }
+            catch (SQLException e) {
+            }
+            
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                log.error("Interrupted while trying to connect to MySQL", e);
+                break;
+            }
+        }
+        
+        if (conn != null) {
+            try {
+                conn.close();
+            }
+            catch (SQLException e) {
+                log.error("Error encountered while trying to close JDBC connection", e);
+            }
         }
     }
     
-    protected void initializeWebApps() {
+    protected void initializeTomcat() {
         log.trace("Starting Tomcat...");
         
         File tomcatBinPath = new File(tomcatDir).getAbsoluteFile();
@@ -158,8 +256,39 @@ public class Launcher {
         
         tomcatServer.start();
         
-        // TODO: try getting the "/" path to make sure that tomcat has started
-        // before hiding the splash screen
+        // give Tomcat a headstart
+        try {
+            Thread.sleep(tomcatHeadstartMillis);
+        }
+        catch (InterruptedException e) {
+            log.error("Interrupted while waiting for Tomcat to start", e);
+        }
+        
+        // try connecting to the workbench url
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(workbenchUrl);
+        HttpResponse response = null;
+        while (true) {
+            try {
+                response = httpClient.execute(httpGet);
+            }
+            catch (ClientProtocolException e) {
+            }
+            catch (IOException e) {
+            }
+            
+            if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                break;
+            }
+            
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                log.error("Interrupted while trying to connect to Tomcat", e);
+                break;
+            }
+        }
     }
     
     protected void shutdownMysql() {
@@ -202,20 +331,8 @@ public class Launcher {
     }
     
     public void open() {
-        try {
-            log.debug("Sleeping for 5 seconds to allow tomcat to startup");
-            Thread.sleep(5000);
-        }
-        catch (InterruptedException e) {
-            log.error("Sleep interrupted", e);
-        }
-        
-        try {
-            Program.launch(workbenchUrl);
-        }
-        catch (Exception ex) {
-            log.error("Cannot launch workbench due to error", ex);
-        }
+        // show the splash screen
+        shell.open();
         
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) display.sleep();
@@ -223,11 +340,41 @@ public class Launcher {
     }
     
     public void assemble() {
-        initialize();
         initializeComponents();
+        initializeLayout();
         initializeActions();
-        initializeMysql();
-        initializeWebApps();
+        
+        startupThread = new StartupThread();
+        startupThread.start();
+    }
+    
+    private class StartupThread extends Thread {
+        @Override
+        public void run() {
+            // rename %TEMP%/icis.ini
+            renameIcisIni();
+            
+            // initialize MySQL
+            initializeMysql();
+            
+            // initialize Tomcat
+            initializeTomcat();
+            
+            // launch the workbench url
+            display.asyncExec(new Runnable() {
+                
+                public void run() {
+                    try {
+                        Program.launch(workbenchUrl);
+                    }
+                    catch (Exception ex) {
+                        log.error("Cannot launch workbench due to error", ex);
+                    }
+                    
+                    shell.setVisible(false);
+                }
+            });
+        }
     }
     
     public static void main(String[] args) {

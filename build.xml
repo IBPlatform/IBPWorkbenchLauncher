@@ -58,14 +58,14 @@
     <property name="demo_scripts.dir" location="demo_scripts"/>
     <property name="launch4j.dir" location="launch4j"/>
     <property name="images.dir" location="images"/>
-    <property name="dist.dir" value="C:/dist"/>
+    <property name="dist.dir" value="E:/dist"/>
     <property name="nsis.dir" location="nsis"/>
     
     <property name="IBDBScripts.dir" location="../IBDBScripts"/>
     <property name="crop.database.dir" location="crop_databases"/>
     
-    <property name="makensis.path" value="C:/Program Files/NSIS/makensis.exe"/>
-    <property name="launch4j.path" value="C:/Program Files/Launch4j/launch4jc.exe"/>
+    <property name="makensis.path" value="C:/Program Files (x86)/NSIS/makensis.exe"/>
+    <property name="launch4j.path" value="C:/Program Files (x86)/Launch4j/launch4jc.exe"/>
     
     <property name="dist.mysql.path" value="${dist.dir}/mysql/bin/mysql.exe"/>
     <property name="dist.mysqld.path" value="${dist.dir}/mysql/bin/mysqld.exe"/>
@@ -152,13 +152,25 @@
             <fileset dir="${build.dir}">
                 <include name="**"/>
             </fileset>
+            <!-- SWT -->
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/org.eclipse.swt.win32.win32.x86_3.6.2.v3659c.jar"/>
+            <!-- Tomcat -->
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/bootstrap.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/tomcat-juli.jar"/>
+            <!-- Spring -->
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/spring-instrument-3.1.1.RELEASE.jar"/>
-        	<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/slf4j-api-1.6.4.jar"/>
+            <!-- MySQL -->
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/mysql-connector-java-5.1.13-bin.jar"/>
+            <!-- HTTP Client -->
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/httpclient-4.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/httpcore-4.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/httpmime-4.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/commons-codec-1.6.jar"/>
+            <!-- Logging -->
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/slf4j-api-1.6.4.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/logback-core-1.0.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/logback-classic-1.0.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/commons-logging-1.1.1.jar"/>
         </jar>
     </target>
     
