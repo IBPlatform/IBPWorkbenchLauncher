@@ -29,6 +29,12 @@
 # This is the size (in kB) of all the files copied into "Program Files"
 !define INSTALLSIZE 7233
 
+# This is the title of the main window of the workbench launcher.
+# The workbench launcher should be made terminate when this window is closed.
+!define WORKBENCH_WINDOW_TITLE "Test"
+!define WORKBENCH_CLOSE_TIMEOUT_MS 20000
+!define WORKBENCH_CLOSE_SYNC_TERM 0x00100001
+
 #SetCompressor /FINAL /SOLID lzma
 #SetCompressorDictSize 128
 
@@ -53,18 +59,80 @@ Page directory
 Page instfiles
  
 !macro VerifyUserIsAdmin
-UserInfo::GetAccountType
-Pop $0
-${If} $0 != "admin" ;Require admin rights on NT4+
+    UserInfo::GetAccountType
+    Pop $0
+    ${If} $0 != "admin" ;Require admin rights on NT4+
         MessageBox mb_iconstop "Administrator rights required!"
         SetErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
         Quit
-${EndIf}
+    ${EndIf}
 !macroend
- 
+
+LangString terminateMsg ${LANG_ENGLISH} "Installer cannot stop running ${WORKBENCH_WINDOW_TITLE}.$\nDo you want to terminate process?"
+LangString stopMsg ${LANG_ENGLISH} "Stopping ${WORKBENCH_WINDOW_TITLE} application"
+
+!macro TerminateAppSimple
+    DetailPrint "Terminating ${APPNAME}"
+    nsExec::Exec "taskkill /T /F /IM ibpworkbench.exe"
+!macroend
+
+!macro TerminateApp
+    Push $0 ; window handle
+    Push $1
+    Push $2 ; process handle
+    DetailPrint "$(stopMsg)"
+    FindWindow $0 '' '${WORKBENCH_WINDOW_TITLE}'
+    IntCmp $0 0 done
+    System::Call 'user32.dll::GetWindowThreadProcessId(i r0, *i .r1) i .r2'
+    System::Call 'kernel32.dll::OpenProcess(i ${WORKBENCH_CLOSE_SYNC_TERM}, i 0, i r1) i .r2'
+    SendMessage $0 ${WM_CLOSE} 0 0 /TIMEOUT=${WORKBENCH_CLOSE_TIMEOUT_MS}
+    System::Call 'kernel32.dll::WaitForSingleObject(i r2, i ${WORKBENCH_CLOSE_TIMEOUT_MS}) i .r1'
+    IntCmp $1 0 close
+    MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION "$(terminateMsg)" /SD IDYES IDYES terminate IDNO close
+    System::Call 'kernel32.dll::CloseHandle(i r2) i .r1'
+    Quit
+    
+    terminate:
+        System::Call 'kernel32.dll::TerminateProcess(i r2, i 0) i .r1'
+    close:
+        System::Call 'kernel32.dll::CloseHandle(i r2) i .r1'
+    done:
+        MessageBox MB_OK|MB_ICONINFORMATION "Done"
+        Pop $2
+        Pop $1
+        Pop $0
+!macroend
+
+!macro UninstallOld
+    ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "QuietUninstallString"
+    StrCmp $R0 "" done
+    
+    MessageBox  MB_OKCANCEL|MB_ICONEXCLAMATION \
+                "${APPNAME} is already installed. $\n$\nClick `OK` to remove the previous version or `Cancel` to cancel this upgrade." \
+                IDOK uninst
+    Abort
+    
+    ;Run the uninstaller
+    uninst:
+        ClearErrors
+        
+        DetailPrint "Uninstalling previous installation"
+        ExecWait $R0
+
+        IfErrors no_remove_uninstaller done
+        ;You can either use Delete /REBOOTOK in the uninstaller or add some code
+        ;here to remove the uninstaller. Use a registry key to check
+        ;whether the user has chosen to uninstall. If you are using an uninstaller
+        ;components page, make sure all sections are uninstalled.
+    no_remove_uninstaller:
+    done:
+!macroend
+
 Function .onInit
     SetShellVarContext all
     !insertmacro VerifyUserIsAdmin
+    !insertmacro TerminateAppSimple
+    !insertmacro UninstallOld
 FunctionEnd
  
 Section "install"
@@ -75,13 +143,13 @@ Section "install"
     File "ibpworkbench.exe"
     File "installer.ico"
     File "ibpworkbench_launcher.jar"
-    File /r "documentation"
-    File /r "demo_scripts"
-    File /r "images"
-    File /r "jre"
-    File /r "mysql"
-    File /r "tomcat"
-    File /r "tools"
+    #File /r "documentation"
+    #File /r "demo_scripts"
+    #File /r "images"
+    #File /r "jre"
+    #File /r "mysql"
+    #File /r "tomcat"
+    #File /r "tools"
     
     # Add any other files for the install directory (license files, app data, etc) here
  
@@ -94,10 +162,10 @@ Section "install"
     CreateShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\ibpworkbench.exe"
     
     # Create shortcuts for demo scripts
-    SetOutPath "$INSTDIR\demo_scripts\"
-    CreateShortCut "$DESKTOP\Initialize Workbench Tutorial.lnk" "$INSTDIR\demo_scripts\01_ibdb_cowpea_local-1-Start.bat"
-    CreateShortCut "$DESKTOP\Initialize Fieldbook Tutorial.lnk" "$INSTDIR\demo_scripts\02_ibdb_cowpea_local-5-F3_Nursery-arlett.bat"
-    CreateShortCut "$DESKTOP\Initialize Genotyping database Tutorial.lnk" "$INSTDIR\demo_scripts\03_ibdb_cowpea_local-gdms.bat"
+    #SetOutPath "$INSTDIR\demo_scripts\"
+    #CreateShortCut "$DESKTOP\Initialize Workbench Tutorial.lnk" "$INSTDIR\demo_scripts\01_ibdb_cowpea_local-1-Start.bat"
+    #CreateShortCut "$DESKTOP\Initialize Fieldbook Tutorial.lnk" "$INSTDIR\demo_scripts\02_ibdb_cowpea_local-5-F3_Nursery-arlett.bat"
+    #CreateShortCut "$DESKTOP\Initialize Genotyping database Tutorial.lnk" "$INSTDIR\demo_scripts\03_ibdb_cowpea_local-gdms.bat"
     
     # Registry information for add/remove programs
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
@@ -132,7 +200,9 @@ Function un.onInit
 FunctionEnd
  
 Section "uninstall"
- 
+    # Terminate the application if it is running
+    !insertmacro TerminateAppSimple
+    
     # Remove Start Menu launcher
     Delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
     # Try to remove the Start Menu folder - this will only happen if it is empty
