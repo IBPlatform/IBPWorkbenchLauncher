@@ -143,13 +143,13 @@ Section "install"
     File "ibpworkbench.exe"
     File "installer.ico"
     File "ibpworkbench_launcher.jar"
-    #File /r "documentation"
-    #File /r "demo_scripts"
-    #File /r "images"
-    #File /r "jre"
-    #File /r "mysql"
-    #File /r "tomcat"
-    #File /r "tools"
+    File /r "documentation"
+    File /r "demo_scripts"
+    File /r "images"
+    File /r "jre"
+    File /r "mysql"
+    File /r "tomcat"
+    File /r "tools"
     
     # Add any other files for the install directory (license files, app data, etc) here
  
@@ -162,10 +162,10 @@ Section "install"
     CreateShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\ibpworkbench.exe"
     
     # Create shortcuts for demo scripts
-    #SetOutPath "$INSTDIR\demo_scripts\"
-    #CreateShortCut "$DESKTOP\Initialize Workbench Tutorial.lnk" "$INSTDIR\demo_scripts\01_ibdb_cowpea_local-1-Start.bat"
-    #CreateShortCut "$DESKTOP\Initialize Fieldbook Tutorial.lnk" "$INSTDIR\demo_scripts\02_ibdb_cowpea_local-5-F3_Nursery-arlett.bat"
-    #CreateShortCut "$DESKTOP\Initialize Genotyping database Tutorial.lnk" "$INSTDIR\demo_scripts\03_ibdb_cowpea_local-gdms.bat"
+    SetOutPath "$INSTDIR\demo_scripts\"
+    CreateShortCut "$DESKTOP\Initialize Workbench Tutorial.lnk" "$INSTDIR\demo_scripts\01_ibdb_cowpea_local-1-Start.bat"
+    CreateShortCut "$DESKTOP\Initialize Fieldbook Tutorial.lnk" "$INSTDIR\demo_scripts\02_ibdb_cowpea_local-5-F3_Nursery-arlett.bat"
+    CreateShortCut "$DESKTOP\Initialize Genotyping database Tutorial.lnk" "$INSTDIR\demo_scripts\03_ibdb_cowpea_local-gdms.bat"
     
     # Registry information for add/remove programs
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
