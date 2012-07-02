@@ -54,6 +54,7 @@
     <property name="webapps.dir" location="webapps"/>
     <property name="tools.dir" location="tools"/>
     <property name="tools_conf.dir" location="tools_conf"/>
+	<property name="init_files.dir" location="init_files"/>
     <property name="documentation.dir" location="documentation"/>
     <property name="demo_scripts.dir" location="demo_scripts"/>
     <property name="launch4j.dir" location="launch4j"/>
@@ -247,6 +248,14 @@
         </copy>
     </target>
     
+    <target name="copy-init-files" description="Copy initial files">
+        <copy todir="${dist.dir}" overwrite="true" verbose="true">
+            <fileset dir="${init_files.dir}">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+    </target>
+    
     <target name="copy-documentation" description="Copy documentation and sample files">
         <copy todir="${dist.dir}/documentation" overwrite="true" verbose="true">
             <fileset dir="${documentation.dir}">
@@ -263,7 +272,7 @@
         </copy>
     </target>
     
-    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-webapps,copy-tools,update-tools-conf,copy-documentation,copy-demo-scripts" description="Copy necessary files on the distribution directory">
+    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-webapps,copy-tools,update-tools-conf,copy-init-files,copy-documentation,copy-demo-scripts" description="Copy necessary files on the distribution directory">
     </target>
     
     <target name="dist-start-mysqld" description="Starts the MySQL daemon">
@@ -307,6 +316,8 @@
                     <include name="IBDBv1_GMS-LOCAL.sql"/>
                     <include name="IBDBv1_IMS.sql"/>
                     <include name="IBDBv1_Workbench_Project.sql"/>
+                </fileset>
+                <fileset dir="${IBDBScripts.dir}">
                     <include name="IBDBv1_GDMS_User.sql"/>
                 </fileset>
                 <fileset dir="${crop.database.dir}/local/${database}">

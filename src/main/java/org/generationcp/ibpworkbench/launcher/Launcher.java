@@ -25,8 +25,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -34,6 +39,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -82,7 +88,7 @@ public class Launcher {
 
     private Shell warningShell;
     private Label warningLabel;
-    private Label warningImageLabel;
+    private Composite warningImageArea;
     private Button buttonOk;
 
     protected void initializeComponents() {
@@ -106,15 +112,15 @@ public class Launcher {
         progressBar.moveAbove(splashLabel);
         
         // create the warning shell
-        warningShell = new Shell(shell, SWT.DIALOG_TRIM);
+        warningShell = new Shell(display, SWT.DIALOG_TRIM);
         warningShell.setSize(640, 480);
+        warningShell.setText("IBP Workbench");
         centerShellToPrimaryMonitor(warningShell);
         
         warningLabel = new Label(warningShell, SWT.LEFT);
         warningLabel.setText("IBPWorkbench will start MySQL and Tomcat for the first time.\nPlease \"Allow Access\" or \"Unblock\" it on your firewall.");
         
-        warningImageLabel = new Label(warningShell, SWT.CENTER);
-        warningImageLabel.setImage(new Image(display, "images/unblock.png"));
+        warningImageArea = new Composite(warningShell, SWT.CENTER);
         
         buttonOk = new Button(warningShell, SWT.PUSH);
         buttonOk.setText("OK");
@@ -143,15 +149,16 @@ public class Launcher {
         Rectangle shellBounds = shell.getBounds();
         splashLabel.setBounds(0, 0, shellBounds.width, shellBounds.height);
         
-        final int margin = 10;
+        final int vMargin = 5;
+        final int hMargin = 40;
         //Point progressLabelPreferredSize = progressLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         Point progressBarPreferredSize = progressBar.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         
         //int progressLabelY = shellBounds.height - margin - progressBarPreferredSize.y - margin - progressLabelPreferredSize.y;
-        int progressBarY = shellBounds.height - margin - progressBarPreferredSize.y;
+        int progressBarY = shellBounds.height - vMargin - progressBarPreferredSize.y;
         
         //progressLabel.setBounds(margin, progressLabelY, shellBounds.width - (2* margin), progressLabelPreferredSize.y);
-        progressBar.setBounds(margin, progressBarY, shellBounds.width - (2 * margin), progressBarPreferredSize.y);
+        progressBar.setBounds(hMargin, progressBarY, shellBounds.width - (2 * hMargin), progressBarPreferredSize.y);
     }
     
     protected void layoutWarningShell() {
@@ -162,10 +169,10 @@ public class Launcher {
         warningLabelLayoutData.grabExcessVerticalSpace = false;
         warningLabel.setLayoutData(warningLabelLayoutData);
         
-        GridData warningImageLabelLayoutData = new GridData();
-        warningImageLabelLayoutData.grabExcessHorizontalSpace = true;
-        warningImageLabelLayoutData.grabExcessVerticalSpace = true;
-        warningImageLabel.setLayoutData(warningImageLabelLayoutData);
+        GridData warningImageAreaLayoutData = new GridData(GridData.FILL_BOTH);
+        warningImageAreaLayoutData.grabExcessHorizontalSpace = true;
+        warningImageAreaLayoutData.grabExcessVerticalSpace = true;
+        warningImageArea.setLayoutData(warningImageAreaLayoutData);
         
         GridData buttonOkLayoutData = new GridData();
         buttonOkLayoutData.grabExcessHorizontalSpace = false;
@@ -178,12 +185,34 @@ public class Launcher {
     }
     
     protected void initializeActions() {
+        warningImageArea.addPaintListener(new PaintListener() {
+            
+            public void paintControl(PaintEvent e) {
+                GC gc = e.gc;
+                
+                Point labelSize = warningImageArea.getSize();
+                
+                Image image = new Image(display, "images/unblock.png");
+                int x = (labelSize.x - image.getImageData().width) / 2;
+                int y = (labelSize.y - image.getImageData().height) / 2;
+                
+                gc.drawImage(image, x, y);
+            }
+        });
+
         buttonOk.addSelectionListener(new SelectionAdapter() {
             
             @Override
             public void widgetSelected(SelectionEvent e) {
-                warningShell.setVisible(false);
+                warningShell.dispose();
                 
+                launchMySQLAndTomcat();
+            }
+        });
+        
+        warningShell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent e) {
                 launchMySQLAndTomcat();
             }
         });
@@ -345,6 +374,7 @@ public class Launcher {
         File firstRunFile = new File(firstRunFilename);
         if (firstRunFile.exists()) {
             warningShell.open();
+            firstRunFile.delete();
         }
         else {
             launchMySQLAndTomcat();
