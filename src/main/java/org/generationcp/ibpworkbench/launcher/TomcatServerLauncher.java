@@ -12,8 +12,14 @@
 
 package org.generationcp.ibpworkbench.launcher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TomcatServerLauncher{
 
+    
+    private static final Logger LOG = LoggerFactory.getLogger(TomcatServerLauncher.class);
+    
     public static void main(String[] args) {
         TomcatServer server = new TomcatServer();
         server.start();
@@ -21,7 +27,7 @@ public class TomcatServerLauncher{
         try {
             Thread.sleep(1000 * 60);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("InterruptedException", e );
         }
 
         server.stopServer();

@@ -55,7 +55,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Launcher {
-    private Logger log = LoggerFactory.getLogger(Launcher.class);
+    
+    private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
     
     private String mysqlBinDir = "mysql/bin";
     private String tomcatDir = "tomcat";
@@ -219,7 +220,7 @@ public class Launcher {
     }
     
     protected void initializeMysql() {
-        log.trace("Starting MySQL...");
+        LOG.trace("Starting MySQL...");
         
         File workingDirPath = new File(mysqlBinDir).getAbsoluteFile();
         String mysqldPath = "mysqld.exe";
@@ -231,7 +232,7 @@ public class Launcher {
             mysqlProcess = pb.start();
         }
         catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("IOException", e );
         }
         
         // give Tomcat a headstart
@@ -239,14 +240,14 @@ public class Launcher {
             Thread.sleep(mysqlHeadstartMillis);
         }
         catch (InterruptedException e) {
-            log.error("Interrupted while waiting for MySQL to start", e);
+            LOG.error("Interrupted while waiting for MySQL to start", e);
         }
         
         try {
             Class.forName("com.mysql.jdbc.Driver");
         }
         catch (ClassNotFoundException e) {
-            log.error("Error encountered while trying to load JDBC Driver", e);
+            LOG.error("Error encountered while trying to load JDBC Driver", e);
         }
         
         Connection conn = null;
@@ -256,13 +257,14 @@ public class Launcher {
                 break;
             }
             catch (SQLException e) {
+                LOG.error("SQL Exception", e);
             }
             
             try {
                 Thread.sleep(1000);
             }
             catch (InterruptedException e) {
-                log.error("Interrupted while trying to connect to MySQL", e);
+                LOG.error("Interrupted while trying to connect to MySQL", e);
                 break;
             }
         }
@@ -272,13 +274,13 @@ public class Launcher {
                 conn.close();
             }
             catch (SQLException e) {
-                log.error("Error encountered while trying to close JDBC connection", e);
+                LOG.error("Error encountered while trying to close JDBC connection", e);
             }
         }
     }
     
     protected void initializeTomcat() {
-        log.trace("Starting Tomcat...");
+        LOG.trace("Starting Tomcat...");
         
         File tomcatBinPath = new File(tomcatDir).getAbsoluteFile();
         tomcatServer = new TomcatServer();
@@ -291,7 +293,7 @@ public class Launcher {
             Thread.sleep(tomcatHeadstartMillis);
         }
         catch (InterruptedException e) {
-            log.error("Interrupted while waiting for Tomcat to start", e);
+            LOG.error("Interrupted while waiting for Tomcat to start", e);
         }
         
         // try connecting to the workbench url
@@ -303,8 +305,10 @@ public class Launcher {
                 response = httpClient.execute(httpGet);
             }
             catch (ClientProtocolException e) {
+                LOG.error("ClientProtocolException", e);
             }
             catch (IOException e) {
+                LOG.error("IOException", e);
             }
             
             if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -315,14 +319,14 @@ public class Launcher {
                 Thread.sleep(1000);
             }
             catch (InterruptedException e) {
-                log.error("Interrupted while trying to connect to Tomcat", e);
+                LOG.error("Interrupted while trying to connect to Tomcat", e);
                 break;
             }
         }
     }
     
     protected void shutdownMysql() {
-        log.trace("Stopping MySQL...");
+        LOG.trace("Stopping MySQL...");
         
         if (mysqlProcess != null) {
             mysqlProcess.destroy();
@@ -332,12 +336,12 @@ public class Launcher {
             mysqlProcess.waitFor();
         }
         catch (InterruptedException e) {
-            log.error("Interrupted while waiting for MySQL to stop", e);
+            LOG.error("Interrupted while waiting for MySQL to stop", e);
         }
     }
     
     protected void shutdownWebApps() {
-        log.trace("Stopping Tomcat...");
+        LOG.trace("Stopping Tomcat...");
         
         tomcatServer.stopServer();
     }
@@ -349,14 +353,14 @@ public class Launcher {
         
         if (icisIni.exists()) {
             boolean result = icisIni.renameTo(icisIniBakFile);
-            log.debug("Renamed ICIS.ini to ICIS.ini.bak: {}", result);
+            LOG.debug("Renamed ICIS.ini to ICIS.ini.bak: {}", result);
         }
     }
     
     protected void revertIcisIni() {
         if (icisIniBakFile.exists()) {
             boolean result = icisIniBakFile.renameTo(icisIni);
-            log.debug("Renamed ICIS.ini.bak to ICIS.ini: {}", result);
+            LOG.debug("Renamed ICIS.ini.bak to ICIS.ini: {}", result);
         }
     }
     
@@ -431,7 +435,7 @@ public class Launcher {
                     Program.launch(workbenchUrl);
                 }
                 catch (Exception ex) {
-                    log.error("Cannot launch workbench due to error", ex);
+                    LOG.error("Cannot launch workbench due to error", ex);
                 }
             }
         });
@@ -440,13 +444,13 @@ public class Launcher {
         exitItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                log.debug("Exiting workbench launcher");
+                LOG.debug("Exiting workbench launcher");
                 
                 try {
                     startupThread.join();
                 }
                 catch (InterruptedException e1) {
-                    log.error("Interrupted while waiting for startup thread to stop", e);
+                    LOG.error("Interrupted while waiting for startup thread to stop", e);
                 }
                 
                 trayItem.dispose();
@@ -480,7 +484,7 @@ public class Launcher {
                         Program.launch(workbenchUrl);
                     }
                     catch (Exception ex) {
-                        log.error("Cannot launch workbench due to error", ex);
+                        LOG.error("Cannot launch workbench due to error", ex);
                     }
                     
                     // hide the splash screen

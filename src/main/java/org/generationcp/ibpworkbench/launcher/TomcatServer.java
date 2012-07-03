@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
 
 public class TomcatServer extends Thread{
 
-    private Logger log = LoggerFactory.getLogger(TomcatServer.class);
+    
+    private static final Logger LOG = LoggerFactory.getLogger(TomcatServer.class);
 
     private String catalinaHome = "tomcat";
 
@@ -37,7 +38,7 @@ public class TomcatServer extends Thread{
             try {
                 bootstrap.stop();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("Exception", e );
             }
         }
     }
@@ -50,7 +51,7 @@ public class TomcatServer extends Thread{
         try {
             bootstrap.start();
         } catch (Exception e) {
-            log.error("Unable to start tomcat due to error", e);
+            LOG.error("Unable to start tomcat due to error", e);
 
             bootstrap = null;
         }
