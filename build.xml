@@ -223,6 +223,28 @@
         </copy>
     </target>
     
+    <target name="copy-database-data" description="Copy database files to dist directory">
+        <mkdir dir="${dist.dir}/crop_databases/central"/>
+        <copy todir="${dist.dir}/crop_databases/central" overwrite="yes" verbose="yes">
+            <fileset dir="${crop.database.dir}/central">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+        <mkdir dir="${dist.dir}/crop_databases/workbench"/>
+        <copy todir="${dist.dir}/crop_databases/workbench" overwrite="yes" verbose="yes">
+            <fileset dir="${crop.database.dir}/workbench">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+        <copy todir="${dist.dir}/crop_databases" overwrite="yes" verbose="yes">
+            <fileset dir="${crop.database.dir}">
+                <include name="*.bat"/>
+            	<include name="*.sh"/>
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+    </target>
+    
     <target name="copy-webapps" description="Copy webapps to Tomcat">
         <!-- Copy the web apps to tomcat -->
         <copy todir="${dist.dir}/tomcat/webapps" overwrite="yes" verbose="yes">
