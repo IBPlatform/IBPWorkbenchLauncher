@@ -15,6 +15,7 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/i4jruntime.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
