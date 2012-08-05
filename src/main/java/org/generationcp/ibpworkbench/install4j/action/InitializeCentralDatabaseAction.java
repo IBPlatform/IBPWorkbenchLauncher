@@ -107,6 +107,7 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
             stmt.executeUpdate("DROP DATABASE IF EXISTS ibdb_" + cropName + "_central");
             stmt.executeUpdate("CREATE DATABASE ibdb_" + cropName + "_central");
             stmt.executeUpdate("GRANT ALL ON ibdb_" + cropName + "_central.* TO 'central'@'localhost' IDENTIFIED BY 'central'");
+            stmt.executeUpdate("FLUSH PRIVILEGES");
         }
         catch (SQLException e1) {
             Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
