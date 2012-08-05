@@ -1,4 +1,5 @@
 set JRE_HOME=../../jre
+set CATALINA_HOME=..
 
 @echo off
 rem Licensed to the Apache Software Foundation (ASF) under one or more
