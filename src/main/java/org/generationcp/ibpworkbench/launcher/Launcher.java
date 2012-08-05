@@ -24,6 +24,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -58,6 +61,8 @@ public class Launcher {
     
     private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
     
+    private final static int MAX_CONNECT_TRIES = 5;
+    
     private String mysqlBinDir = "mysql/bin";
     private String tomcatDir = "tomcat";
     private String firstRunFilename = "first_run";
@@ -84,7 +89,7 @@ public class Launcher {
     
     private long mysqlHeadstartMillis = 1000;
     private long tomcatHeadstartMillis = 2000;
-
+    
     private StartupThread startupThread;
 
     private Shell warningShell;
@@ -251,9 +256,12 @@ public class Launcher {
         }
         
         Connection conn = null;
-        while (true) {
+        boolean success = false;
+        int tryNum = 0;
+        while (++tryNum < MAX_CONNECT_TRIES) {
             try {
                 conn = DriverManager.getConnection("jdbc:mysql://localhost:13306/?user=root");
+                success = true;
                 break;
             }
             catch (SQLException e) {
@@ -277,6 +285,13 @@ public class Launcher {
                 LOG.error("Error encountered while trying to close JDBC connection", e);
             }
         }
+        
+        if (!success) {
+            LOG.trace("Unable to connect to MySQL after {} tries", tryNum);
+        }
+        else {
+            LOG.trace("Connected to MySQL after {} tries", tryNum);
+        }
     }
     
     protected void initializeTomcat() {
@@ -297,10 +312,16 @@ public class Launcher {
         }
         
         // try connecting to the workbench url
-        HttpClient httpClient = new DefaultHttpClient();
+        HttpParams httpParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+        
+        HttpClient httpClient = new DefaultHttpClient(httpParams);
         HttpGet httpGet = new HttpGet(workbenchUrl);
         HttpResponse response = null;
-        while (true) {
+        
+        int tryNum = 0;
+        boolean success = false;
+        while (++tryNum < MAX_CONNECT_TRIES) {
             try {
                 response = httpClient.execute(httpGet);
             }
@@ -312,6 +333,7 @@ public class Launcher {
             }
             
             if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                success = true;
                 break;
             }
             
@@ -322,6 +344,13 @@ public class Launcher {
                 LOG.error("Interrupted while trying to connect to Tomcat", e);
                 break;
             }
+        }
+        
+        if (!success) {
+            LOG.trace("Unable to connect to Tomcat after {} tries", tryNum);
+        }
+        else {
+            LOG.trace("Connected to Tomcat after {} tries", tryNum);
         }
     }
     
