@@ -504,7 +504,7 @@
     </windows>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="147" />
+    <mediaSet refId="22" />
   </buildIds>
   <buildOptions verbose="false" faster="true" disableSigning="true" debug="false" />
 </install4j>
