@@ -54,7 +54,7 @@
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/ibpworkbench_launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
     </entries>
     <components>
-      <component name="${i18n:workbench}" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
+      <component name="${i18n:workbench} 1.1.0" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="database" fileType="regular" />
@@ -67,35 +67,35 @@
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:breeding_manager}" id="263" customizedId="breeding_manager" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:breeding_manager} 2.0.0" id="263" customizedId="breeding_manager" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/breeding_manager" fileType="regular" />
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:breeding_view}" id="264" customizedId="breeding_view" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:breeding_view} Alpha Version" id="264" customizedId="breeding_view" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/breeding_view" fileType="regular" />
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:fieldbook}" id="265" customizedId="fieldbook" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:fieldbook} 2.0.0" id="265" customizedId="fieldbook" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/fieldbook" fileType="regular" />
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:flapjack}" id="266" customizedId="flapjack" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:flapjack} 1.12.05.25" id="266" customizedId="flapjack" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/flapjack" fileType="regular" />
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:optimas}" id="267" customizedId="optimas" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:optimas} 1.0" id="267" customizedId="optimas" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/optimas" fileType="regular" />
