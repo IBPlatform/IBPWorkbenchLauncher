@@ -112,7 +112,7 @@
     </components>
   </files>
   <launchers>
-    <launcher name="ibpworkbench-install4j" id="70" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="ibpworkbench" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="">
+    <launcher name="ibpworkbench" id="70" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="ibpworkbench" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="">
       <executable name="ibpworkbench" type="1" iconSet="true" iconFile="" executableDir="." redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="true" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="requireAdministrator" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
@@ -367,8 +367,41 @@
             <validation />
             <preActivation />
             <postActivation />
-            <actions />
-            <formComponents />
+            <actions>
+              <action name="" id="448" customizedId="" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" enabled="true" commentSet="false" comment="" actionElevationType="none" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction">
+                      <void property="launcherId">
+                        <string>70</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition>context.getBooleanVariable("executeLauncherAction") &amp;&amp; (!context.isUnattended())</condition>
+              </action>
+            </actions>
+            <formComponents>
+              <formComponent name="Execute launcher" id="449" customizedId="" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                      <void property="checkboxText">
+                        <string>${i18n:RunEntryExec("${compiler:sys.fullName}")}</string>
+                      </void>
+                      <void property="initiallySelected">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="variableName">
+                        <string>executeLauncherAction</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+                <visibilityScript />
+              </formComponent>
+            </formComponents>
           </screen>
         </screens>
       </application>
