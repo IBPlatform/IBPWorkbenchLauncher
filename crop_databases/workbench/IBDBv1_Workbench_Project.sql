@@ -234,9 +234,7 @@ CREATE TABLE workbench_project (
     ,template_id                INT UNSIGNED NOT NULL
     ,template_modified          BOOL NOT NULL DEFAULT FALSE
     ,crop_type                  ENUM('CHICKPEA', 'COWPEA', 'MAIZE', 'RICE', 'WHEAT', 'CASSAVA')
-    ,locid                      INT UNSIGNED
-    ,mid                        INT UNSIGNED
-    ,last_open_date             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ,last_open_date             TIMESTAMP NULL
     ,PRIMARY KEY(project_id)
     ,CONSTRAINT fk_project_1 FOREIGN KEY(template_id) REFERENCES workbench_workflow_template(template_id) ON UPDATE CASCADE
 )
