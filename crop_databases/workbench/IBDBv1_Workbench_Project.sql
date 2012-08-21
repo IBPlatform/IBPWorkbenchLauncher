@@ -13,6 +13,11 @@ workbench_project_member
 ,workbench_dataset
 ;
 
+CREATE TABLE IF NOT EXISTS workbench.workbench_crops(
+     crop_name VARCHAR(32) NOT NULL
+    ,PRIMARY KEY(crop_name)
+) ENGINE=InnoDB;
+
 -- 
 --  A template of a Workflow.
 --  
@@ -228,7 +233,7 @@ CREATE TABLE users (
 -- 
 CREATE TABLE workbench_project (
      project_id                 INT UNSIGNED AUTO_INCREMENT NOT NULL
-    ,user_id                 	INT UNSIGNED NOT NULL
+    ,user_id                    INT UNSIGNED NOT NULL
     ,project_name               VARCHAR(255) NOT NULL
     ,target_due_date            DATE
     ,template_id                INT UNSIGNED NOT NULL
@@ -277,11 +282,11 @@ ENGINE=InnoDB;
 
 CREATE TABLE workbench_dataset (
      dataset_id             INT UNSIGNED AUTO_INCREMENT NOT NULL
-    ,name					VARCHAR(128) NOT NULL
-    ,description			TEXT
-    ,creation_date			DATE
-    ,project_id				INT UNSIGNED NOT NULL
-    ,type					ENUM('STUDY', 'GERMPLASM_LIST')
+    ,name                   VARCHAR(128) NOT NULL
+    ,description            TEXT
+    ,creation_date          DATE
+    ,project_id             INT UNSIGNED NOT NULL
+    ,type                   ENUM('STUDY', 'GERMPLASM_LIST')
     ,PRIMARY KEY(dataset_id)
     ,CONSTRAINT fk_workbench_dataset_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
 )
