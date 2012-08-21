@@ -336,8 +336,11 @@
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction">
+                      <void property="programGroupName">
+                        <string>${i18n:start_menu_group}</string>
+                      </void>
                       <void property="uninstallerMenuName">
-                        <string>${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</string>
+                        <string>${i18n:uninstall_workbench}</string>
                       </void>
                     </object>
                   </java>
@@ -406,6 +409,14 @@
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.misc.RequireInstallerPrivilegesAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="418" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.StopWorkbenchAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.StopWorkbenchAction" />
                   </java>
                 </serializedBean>
                 <condition />
