@@ -38,8 +38,8 @@
     
     <property name="installers.dir" location="installers"/>
     <property name="jre.zip" location="${installers.dir}/jre.zip"/>
-    <property name="tomcat.zip" location="${installers.dir}/apache-tomcat-6.0.35-windows-x86.zip"/>
-    <property name="tomcat.zip.expanded" value="apache-tomcat-6.0.35"/>
+    <property name="tomcat.zip" location="${installers.dir}/apache-tomcat-7.0.29-windows-x86.zip"/>
+    <property name="tomcat.zip.expanded" value="apache-tomcat-7.0.29"/>
     <property name="mysql.zip" location="${installers.dir}/mysql-5.5.23-win32.zip"/>
     <property name="mysql.zip.expanded" value="mysql-5.5.23-win32"/>
     
