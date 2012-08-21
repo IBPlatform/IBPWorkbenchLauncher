@@ -45,8 +45,7 @@ public class InitializeWorkbenchDatabaseAction extends AbstractDatabaseAction {
         // create the database and user
         try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate("DROP DATABASE IF EXISTS workbench");
-            stmt.executeUpdate("CREATE DATABASE workbench");
+            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS workbench");
             stmt.executeUpdate("GRANT ALL ON workbench.* TO 'workbench'@'localhost' IDENTIFIED BY 'workbench'");
         }
         catch (SQLException e1) {

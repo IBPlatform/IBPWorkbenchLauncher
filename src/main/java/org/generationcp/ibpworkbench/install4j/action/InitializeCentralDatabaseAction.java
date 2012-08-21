@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -71,6 +72,11 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
             runScriptsForCrop(context, databaseInfo.getConnection(), CROP_WHEAT);
         }
         
+        // register installed crop types
+        if (!registerCrops(context, databaseInfo.getConnection())) {
+            return false;
+        }
+        
         // stop MySQL
         if (!stopMySql(context, databaseInfo)) {
             return false;
@@ -92,6 +98,63 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
         context.getProgressInterface().setDetailMessage("");
         
         return true;
+    }
+    
+    protected boolean registerCrops(InstallerContext context, Connection conn) {
+        String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crops(\n"
+                                      + "   crop_name VARCHAR(32) NOT NULL\n"
+                                      + "   ,PRIMARY KEY(crop_name)\n"
+                                      + ") ENGINE=InnoDB";
+        String insertCropSql = "INSERT INTO workbench.workbench_crops (crop_name) VALUES (?)";
+        
+        boolean cassava = isComponentSelected(context, CROP_CASSAVA);
+        boolean chickpea = isComponentSelected(context, CROP_CHICKPEA);
+        boolean cowpea = isComponentSelected(context, CROP_COWPEA);
+        boolean maize = isComponentSelected(context, CROP_MAIZE);
+        boolean rice = isComponentSelected(context, CROP_RICE);
+        boolean wheat = isComponentSelected(context, CROP_WHEAT);
+        
+        // create the database and user
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS workbench");
+            stmt.executeUpdate(createWorkbenchCropSql);
+            stmt.close();
+            
+            PreparedStatement pstmt = conn.prepareStatement(insertCropSql);
+            if (cassava) {
+                pstmt.setString(1, "CASSAVA");
+                pstmt.executeUpdate();
+            }
+            if (chickpea) {
+                pstmt.setString(1, "CHICKPEA");
+                pstmt.executeUpdate();
+            }
+            if (cowpea) {
+                pstmt.setString(1, "COWPEA");
+                pstmt.executeUpdate();
+            }
+            if (maize) {
+                pstmt.setString(1, "MAIZE");
+                pstmt.executeUpdate();
+            }
+            if (rice) {
+                pstmt.setString(1, "RICE");
+                pstmt.executeUpdate();
+            }
+            if (wheat) {
+                pstmt.setString(1, "WHEAT");
+                pstmt.executeUpdate();
+            }
+            pstmt.close();
+            
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+            return false;
+        }
     }
     
     protected boolean runScriptsForCrop(InstallerContext context, Connection conn, String cropName) {
