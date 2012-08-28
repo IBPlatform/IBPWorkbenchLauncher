@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.2" transformSequenceNumber="4">
   <directoryPresets config="${compiler:gcp.dist.dir}/license_zh.html" />
-  <application name="IBP Central Databases" distributionSourceDir="" applicationId="3567-7088-8902-2771" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="ibp_central_databases_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="ibp_central_databases" publisher="" publisherWeb="" version="1.0.0" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+  <application name="IBP Central Databases" distributionSourceDir="" applicationId="3567-7088-8902-2771" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="ibp_central_databases_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="ibp_central_databases" publisher="" publisherWeb="" version="1.0.0" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="./messages.properties" />
       <additionalLanguages>
@@ -288,23 +288,6 @@
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="7" customizedId="" beanClass="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
-                  <void property="programGroupName">
-                    <string>${compiler:sys.fullName}</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
-            <validation />
-            <preActivation />
-            <postActivation />
-            <actions />
-            <formComponents />
-          </screen>
           <screen name="" id="8" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="true" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
@@ -320,14 +303,6 @@
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.InstallFilesAction" />
-                  </java>
-                </serializedBean>
-                <condition />
-              </action>
-              <action name="" id="204" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.InitializeCentralDatabaseAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="2" errorMessage="${i18n:cannot_initialize_database}">
-                <serializedBean>
-                  <java class="java.beans.XMLDecoder">
-                    <object class="org.generationcp.ibpworkbench.install4j.action.InitializeCentralDatabaseAction" />
                   </java>
                 </serializedBean>
                 <condition />
@@ -353,6 +328,75 @@
                     <object class="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction">
                       <void property="itemName">
                         <string>${compiler:sys.fullName} ${compiler:sys.version}</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="585" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.OptimizeMySQLConfigurationAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="4" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.OptimizeMySQLConfigurationAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="631" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.StartMySQLAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.StartMySQLAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="500" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.AllowMySQLAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.AllowMySQLAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="501" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.InitializeCentralDatabaseAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.InitializeCentralDatabaseAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="630" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.StopMySQLAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.StopMySQLAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="586" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.NormalizeMySQLConfigurationAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="4" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.NormalizeMySQLConfigurationAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="587" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
+                      <void property="files">
+                        <array class="java.io.File" length="1">
+                          <void index="0">
+                            <object class="java.io.File">
+                              <string>database</string>
+                            </object>
+                          </void>
+                        </array>
+                      </void>
+                      <void property="recursive">
+                        <boolean>true</boolean>
                       </void>
                     </object>
                   </java>

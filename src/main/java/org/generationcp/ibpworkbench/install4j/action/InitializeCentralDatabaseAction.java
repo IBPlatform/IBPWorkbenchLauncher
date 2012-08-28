@@ -1,21 +1,26 @@
 package org.generationcp.ibpworkbench.install4j.action;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.generationcp.ibpworkbench.install4j.DatabaseInfo;
+import org.generationcp.ibpworkbench.install4j.Install4JUtil;
+import org.generationcp.ibpworkbench.util.ScriptRunner;
 
 import com.install4j.api.Util;
+import com.install4j.api.actions.AbstractInstallAction;
 import com.install4j.api.context.InstallationComponentSetup;
 import com.install4j.api.context.InstallerContext;
 import com.install4j.api.context.UserCanceledException;
 
-public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
+public class InitializeCentralDatabaseAction extends AbstractInstallAction {
     private static final long serialVersionUID = 1L;
     
     private final static String DATABASE_DATA_PATH = "database";
@@ -34,57 +39,51 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
     }
     
     public boolean install(InstallerContext context) throws UserCanceledException {
-        // update the MySQL my.ini file
-        if (!optimizeMySQLConfiguration(context)) {
+        // connect to MySQL
+        Connection connection = Install4JUtil.connectToMySQL(context);
+        if (connection == null) {
             return false;
         }
         
-        // start MySQL
-        DatabaseInfo databaseInfo = startMySQL(context);
-        if (databaseInfo == null) {
-            return false;
+        try {
+            // run scripts
+            boolean cassava = isComponentSelected(context, CROP_CASSAVA);
+            boolean chickpea = isComponentSelected(context, CROP_CHICKPEA);
+            boolean cowpea = isComponentSelected(context, CROP_COWPEA);
+            boolean maize = isComponentSelected(context, CROP_MAIZE);
+            boolean rice = isComponentSelected(context, CROP_RICE);
+            boolean wheat = isComponentSelected(context, CROP_WHEAT);
+
+            if (cassava) {
+                runScriptsForCrop(context, connection, CROP_CASSAVA);
+            }
+            if (chickpea) {
+                runScriptsForCrop(context, connection, CROP_CHICKPEA);
+            }
+            if (cowpea) {
+                runScriptsForCrop(context, connection, CROP_COWPEA);
+            }
+            if (maize) {
+                runScriptsForCrop(context, connection, CROP_MAIZE);
+            }
+            if (rice) {
+                runScriptsForCrop(context, connection, CROP_RICE);
+            }
+            if (wheat) {
+                runScriptsForCrop(context, connection, CROP_WHEAT);
+            }
+
+            // register installed crop types
+            if (!registerCrops(context, connection)) {
+                return false;
+            }
         }
-        
-        // run scripts
-        boolean cassava = isComponentSelected(context, CROP_CASSAVA);
-        boolean chickpea = isComponentSelected(context, CROP_CHICKPEA);
-        boolean cowpea = isComponentSelected(context, CROP_COWPEA);
-        boolean maize = isComponentSelected(context, CROP_MAIZE);
-        boolean rice = isComponentSelected(context, CROP_RICE);
-        boolean wheat = isComponentSelected(context, CROP_WHEAT);
-        
-        if (cassava) {
-            runScriptsForCrop(context, databaseInfo.getConnection(), CROP_CASSAVA);
-        }
-        if (chickpea) {
-            runScriptsForCrop(context, databaseInfo.getConnection(), CROP_CHICKPEA);
-        }
-        if (cowpea) {
-            runScriptsForCrop(context, databaseInfo.getConnection(), CROP_COWPEA);
-        }
-        if (maize) {
-            runScriptsForCrop(context, databaseInfo.getConnection(), CROP_MAIZE);
-        }
-        if (rice) {
-            runScriptsForCrop(context, databaseInfo.getConnection(), CROP_RICE);
-        }
-        if (wheat) {
-            runScriptsForCrop(context, databaseInfo.getConnection(), CROP_WHEAT);
-        }
-        
-        // register installed crop types
-        if (!registerCrops(context, databaseInfo.getConnection())) {
-            return false;
-        }
-        
-        // stop MySQL
-        if (!stopMySql(context, databaseInfo)) {
-            return false;
-        }
-        
-        // revert to original my.ini
-        if (!revertMySQLConfiguration(context)) {
-            return false;
+        finally {
+            try {
+                connection.close();
+            }
+            catch (SQLException e) {
+            }
         }
         
         context.getProgressInterface().setStatusMessage(context.getMessage("deleting_temporary_files"));
@@ -101,6 +100,7 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
     }
     
     protected boolean registerCrops(InstallerContext context, Connection conn) {
+        String dropWorkbenchCropSql = "DROP TABLE IF EXISTS workbench.workbench_crops";
         String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crops(\n"
                                       + "   crop_name VARCHAR(32) NOT NULL\n"
                                       + "   ,PRIMARY KEY(crop_name)\n"
@@ -118,6 +118,7 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
         try {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS workbench");
+            stmt.executeUpdate(dropWorkbenchCropSql);
             stmt.executeUpdate(createWorkbenchCropSql);
             stmt.close();
             
@@ -158,7 +159,6 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
     }
     
     protected boolean runScriptsForCrop(InstallerContext context, Connection conn, String cropName) {
-        File databaseDataPath = new File(context.getInstallationDirectory(), DATABASE_DATA_PATH);
         File centralDatabaseDir = new File(context.getInstallationDirectory(), DATABASE_CENTRAL_DATA_PATH);
         File cropDir = new File(centralDatabaseDir, cropName);
         
@@ -171,15 +171,12 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
             stmt.executeUpdate("CREATE DATABASE ibdb_" + cropName + "_central");
             stmt.executeUpdate("GRANT ALL ON ibdb_" + cropName + "_central.* TO 'central'@'localhost' IDENTIFIED BY 'central'");
             stmt.executeUpdate("FLUSH PRIVILEGES");
+            stmt.execute("USE ibdb_" + cropName + "_central");
         }
         catch (SQLException e1) {
             Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
             return false;
         }
-        
-        // get the run_script's path
-        String runScriptName = "run_script.bat";
-        String runScriptPath = databaseDataPath.getAbsolutePath() + File.separator + runScriptName;
         
         // show installation error if the crop database directory does not exist
         if (!cropDir.exists()) {
@@ -199,26 +196,35 @@ public class InitializeCentralDatabaseAction extends AbstractDatabaseAction {
         context.getProgressInterface().setStatusMessage(statusMessage);
 
         for (File sqlFile : sqlFiles) {
-            String detailMessage = sqlFile.getAbsolutePath();
-            context.getProgressInterface().setDetailMessage(detailMessage);
+            BufferedReader br = null;
             
-            ProcessBuilder runScriptProcessBuilder = new ProcessBuilder(runScriptPath, "13306", "ibdb_" + cropName + "_central", String.format("\"%s\"", sqlFile.getAbsolutePath()));
-            runScriptProcessBuilder.directory(databaseDataPath);
-            
-            Process runScriptProcess = null;
             try {
-                runScriptProcess = runScriptProcessBuilder.start();
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(sqlFile)));
+                
+                ScriptRunner runner = new ScriptRunner(conn, false, true);
+                runner.runScript(br);
             }
-            catch (IOException e) {
+            catch (IOException e1) {
+                e1.printStackTrace();
+                
                 Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
                 return false;
             }
-
-            try {
-                runScriptProcess.waitFor();
-            }
-            catch (InterruptedException e) {
+            catch (SQLException e1) {
+                e1.printStackTrace();
+                
+                Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
                 return false;
+            }
+            finally {
+                if (br != null) {
+                    try {
+                        br.close();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         

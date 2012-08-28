@@ -22,7 +22,6 @@ public class SetInstallationDirectory extends AbstractInstallAction {
             Object[] params = new Object[]{ appInfoArray[0].getInstallationDirectory().getAbsolutePath() };
             String message = context.getMessage("warning_multiple_workbench_central_installation", params);
             Util.showMessage(message);
-            return false;
         }
         
         context.setInstallationDirectory(appInfoArray[0].getInstallationDirectory());
