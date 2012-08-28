@@ -206,7 +206,7 @@ CREATE TABLE users (
   uaccess INT NOT NULL DEFAULT 0,
   utype INT NOT NULL DEFAULT 0,
   uname VARCHAR(30) NOT NULL DEFAULT '-',
-  upswd VARCHAR(30) NOT NULL DEFAULT '-',   -- increase length to 30: 20100422 mhabito
+  upswd VARCHAR(30) NOT NULL DEFAULT '-',
   personid INT NOT NULL DEFAULT 0,
   adate INT NOT NULL DEFAULT 0,
   cdate INT NOT NULL DEFAULT 0,
