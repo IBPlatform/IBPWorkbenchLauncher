@@ -315,13 +315,20 @@ public class Launcher {
         HttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
         
-        HttpClient httpClient = new DefaultHttpClient(httpParams);
-        HttpGet httpGet = new HttpGet(workbenchUrl);
-        HttpResponse response = null;
+        HttpClient httpClient;
+        HttpGet httpGet;
+        HttpResponse response;
         
         int tryNum = 0;
         boolean success = false;
+
         while (++tryNum < MAX_CONNECT_TRIES) {
+            
+            httpClient = new DefaultHttpClient(httpParams);
+            httpGet = new HttpGet(workbenchUrl);
+            response = null;
+        
+
             try {
                 response = httpClient.execute(httpGet);
             }
@@ -334,6 +341,7 @@ public class Launcher {
             
             if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 success = true;
+                httpGet.releaseConnection();
                 break;
             }
             
