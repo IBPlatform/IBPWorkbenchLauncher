@@ -14,6 +14,7 @@ package org.generationcp.ibpworkbench.launcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -67,7 +68,10 @@ public class Launcher {
     private String tomcatDir = "tomcat";
     private String firstRunFilename = "first_run";
     
-    private String workbenchUrl = "http://localhost:18080/ibpworkbench/";
+    private final static String TOMCAT_HOST = "localhost";
+    private final static int TOMCAT_PORT = 18080;
+    
+    private final static String workbenchUrl = "http://" + TOMCAT_HOST + ":" + TOMCAT_PORT + "/ibpworkbench/";
     
     private Display display;
     private Shell shell;
@@ -265,7 +269,6 @@ public class Launcher {
                 break;
             }
             catch (SQLException e) {
-                LOG.error("SQL Exception", e);
             }
             
             try {
@@ -501,18 +504,38 @@ public class Launcher {
         });
     }
     
+    protected static boolean isTomcatRunning() {
+        Socket socket = null;
+        try {
+            socket = new Socket(TOMCAT_HOST, TOMCAT_PORT);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+        finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                }
+                catch (IOException e) {
+                }
+            }
+        }
+    }
+    
     private class StartupThread extends Thread {
         @Override
         public void run() {
             // rename %TEMP%/icis.ini
             renameIcisIni();
-            
+
             // initialize MySQL
             initializeMysql();
-            
+
             // initialize Tomcat
             initializeTomcat();
-            
+
             // launch the workbench url
             display.asyncExec(new Runnable() {
                 
@@ -535,6 +558,16 @@ public class Launcher {
     }
     
     public static void main(String[] args) {
+        if (!isTomcatRunning()) {
+            try {
+                Program.launch(workbenchUrl);
+            }
+            catch (Exception ex) {
+                LOG.error("Cannot launch workbench due to error", ex);
+            }
+            return;
+        }
+        
         Launcher launcher = new Launcher();
         launcher.assemble();
         
