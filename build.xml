@@ -30,12 +30,13 @@
     <property name="project.artifactId" value="ibpworkbench_launcher" />
     <property name="project.version" value="1.0" />
 
-    <property name="bin.dir" location="bin" />
+    <!-- <property name="bin.dir" location="bin" /> -->
     <property name="src.dir" location="src" />
     <property name="build.dir" location="build" />
     <property name="jar.dir" location="jar" />
     <property name="lib.dir" location="lib" />
     
+    <!-- The directory where the JRE, Tomcat and MySQL zip files are located. -->
     <property name="installers.dir" location="installers"/>
     <property name="jre.zip" location="${installers.dir}/jre.zip"/>
     <property name="tomcat.zip" location="${installers.dir}/apache-tomcat-7.0.29-windows-x86.zip"/>
@@ -43,34 +44,50 @@
     <property name="mysql.zip" location="${installers.dir}/mysql-5.5.23-win32.zip"/>
     <property name="mysql.zip.expanded" value="mysql-5.5.23-win32"/>
     
+    <!-- The directory where the MySQL and Tomcat configuration files are located. -->
     <property name="installers_conf.dir" location="installers_conf"/>
-    <property name="webapps.dir" location="webapps"/>
+    <!-- <property name="webapps.dir" location="webapps"/> -->
+    
+    <!-- The directory where the tools (fieldbook, optimas, breeding view, etc...) are located -->
     <property name="tools.dir" location="tools"/>
-    <property name="tools_conf.dir" location="tools_conf"/>
-	<property name="init_files.dir" location="init_files"/>
+    <!-- <property name="tools_conf.dir" location="tools_conf"/> -->
+    
+    <!-- The directory where initial files are located -->
+    <property name="init_files.dir" location="init_files"/>
+    
+    <!-- The directory where the CWS documentation is located -->
     <property name="documentation.dir" location="documentation"/>
+    
+    <!-- The directory where the scripts for tutorial/demo purposes are located -->
     <property name="demo_scripts.dir" location="demo_scripts"/>
+    
+    <!-- Properties used by the "launch4j" task. -->
     <property name="launch4j.dir" location="launch4j"/>
-    <property name="install4j.dir" location="install4j"/>
     <property name="images.dir" location="images"/>
+    <property name="launch4j.path" value="C:/Program Files (x86)/Launch4j/launch4jc.exe"/>
+    
+    <!-- The directory where Install4J files are located -->
+    <property name="install4j.dir" location="install4j"/>
+    
     <property name="dist.dir" value="E:/dist"/>
     <property name="nsis.dir" location="nsis"/>
     
+    <!-- The location of the IBDB scripts and central database scripts -->
     <property name="IBDBScripts.dir" location="../IBDBScripts"/>
     <property name="crop.database.dir" location="crop_databases"/>
     
+    <!-- The location of the NSIS executable -->
     <property name="makensis.path" value="C:/Program Files (x86)/NSIS/makensis.exe"/>
-    <property name="launch4j.path" value="C:/Program Files (x86)/Launch4j/launch4jc.exe"/>
     
-    <property name="dist.mysql.path" value="${dist.dir}/mysql/bin/mysql.exe"/>
-    <property name="dist.mysqld.path" value="${dist.dir}/mysql/bin/mysqld.exe"/>
-    
+    <!-- MySQL related properties -->
+    <property name="dist.mysqld.path" value="${dist.dir}/infrastructure/mysql/bin/mysqld.exe"/>
     <property name="mysql.port" value="13306"/>
     <property name="run_script.path" location="crop_databases/run_script.bat"/>
     <property name="stop_mysql_script.path" location="crop_databases/stop_mysql.bat"/>
     
-    <property name="version" value="${project.version}" />
+    <!-- <property name="version" value="${project.version}" /> -->
 
+    <!-- Location of the GCP projects. These are used to build the web apps -->
     <property name="gdms.dir" value="D:/workspace-efficio/gcp/GDMS"/>
     <property name="middleware.dir" value="../IBPMiddleware"/>
     <property name="study_browser.dir" location="../GermplasmStudyBrowser"/>
@@ -190,22 +207,32 @@
     
     <target name="unzip-mysql">
         <unzip src="${mysql.zip}" dest="${dist.dir}"/>
-        <move todir="${dist.dir}/mysql">
+        
+        <mkdir dir="${dist.dir}/infrastructure"/>
+        
+        <move todir="${dist.dir}/infrastructure/mysql">
             <fileset dir="${dist.dir}/${mysql.zip.expanded}"/>
+        </move>
+        
+        <move todir="${dist.dir}/data">
+            <fileset dir="${dist.dir}/infrastructure/mysql/data"/>
         </move>
     </target>
     
     <target name="unzip-tomcat">
         <unzip src="${tomcat.zip}" dest="${dist.dir}"/>
-        <move todir="${dist.dir}/tomcat">
+        
+        <mkdir dir="${dist.dir}/infrastructure"/>
+        
+        <move todir="${dist.dir}/infrastructure/tomcat">
             <fileset dir="${dist.dir}/${tomcat.zip.expanded}"/>
         </move>
         
         <!-- Delete the unnecessary Tomcat files -->
-        <delete dir="${dist.dir}/tomcat/conf/Catalina/localhost" failonerror="no"/>
-        <mkdir dir="${dist.dir}/tomcat/conf/Catalina/localhost"/>
-        <delete dir="${dist.dir}/tomcat/webapps" failonerror="no"/>
-        <mkdir dir="${dist.dir}/tomcat/webapps"/>
+        <delete dir="${dist.dir}/infrastructure/tomcat/conf/Catalina/localhost" failonerror="no"/>
+        <mkdir dir="${dist.dir}/infrastructure/tomcat/conf/Catalina/localhost"/>
+        <delete dir="${dist.dir}/infrastructure/tomcat/webapps" failonerror="no"/>
+        <mkdir dir="${dist.dir}/infrastructure/tomcat/webapps"/>
     </target>
     
     <target name="update-conf-files" description="Update the configuration files">
@@ -253,7 +280,7 @@
     
     <target name="copy-webapps" description="Copy webapps to Tomcat">
         <!-- Copy the web apps to tomcat -->
-        <copy todir="${dist.dir}/tomcat/webapps" overwrite="yes" verbose="yes">
+        <copy todir="${dist.dir}/infrastructure/tomcat/webapps" overwrite="yes" verbose="yes">
             <fileset dir="${gdms.dir}/target">
                 <include name="*.war"/>
             </fileset>
@@ -283,7 +310,7 @@
     </target>
     
     <target name="copy-documentation" description="Copy documentation and sample files">
-        <copy todir="${dist.dir}/documentation" overwrite="true" verbose="true">
+        <copy todir="${dist.dir}/cws_docs" overwrite="true" verbose="true">
             <fileset dir="${documentation.dir}">
                 <exclude name="readme.txt"/>
             </fileset>
@@ -298,7 +325,7 @@
         </copy>
     </target>
     
-    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-database-data,build-webapps,copy-webapps,copy-tools,copy-init-files,copy-documentation,copy-demo-scripts" description="Copy necessary files on the distribution directory">
+    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-database-data,build-webapps,copy-webapps,copy-tools,copy-init-files,copy-documentation,copy-demo-scripts,copy-license" description="Copy necessary files on the distribution directory">
     </target>
     
     <target name="dist-start-mysqld" description="Starts the MySQL daemon">

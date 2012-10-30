@@ -18,6 +18,7 @@
     <variables>
       <variable name="gcp.dist.dir" value="E:\dist" description="" category="" />
       <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
+      <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
     </variables>
     <mergedProjects />
     <codeSigning macEnabled="false" macPkcs12File="" windowsEnabled="false" windowsKeySource="pvkAndSpc" windowsPvkFile="" windowsSpcFile="" windowsPkcs12File="" />
@@ -28,9 +29,10 @@
     <mountPoints>
       <mountPoint id="269" root="" location="database" mode="755" />
       <mountPoint id="270" root="" location="database/workbench" mode="755" />
-      <mountPoint id="203" root="" location="documentation" mode="755" />
+      <mountPoint id="604" root="" location="cws_docs" mode="755" />
       <mountPoint id="204" root="" location="images" mode="755" />
-      <mountPoint id="205" root="" location="tomcat" mode="755" />
+      <mountPoint id="605" root="" location="infrastructure" mode="755" />
+      <mountPoint id="606" root="" location="infrastructure/tomcat" mode="755" />
       <mountPoint id="206" root="" location="tools" mode="755" />
       <mountPoint id="24" root="" location="" mode="755" />
     </mountPoints>
@@ -38,13 +40,13 @@
       <dirEntry mountPoint="270" file="${compiler:gcp.dist.dir}/crop_databases/workbench" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="203" file="${compiler:gcp.dist.dir}/documentation" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="604" file="${compiler:gcp.dist.dir}/cws_docs" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="204" file="${compiler:gcp.dist.dir}/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="205" file="${compiler:gcp.dist.dir}/tomcat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="606" file="${compiler:gcp.dist.dir}/infrastructure/tomcat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="206" file="${compiler:gcp.dist.dir}/tools" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
@@ -59,9 +61,8 @@
         <include all="false">
           <entry location="database" fileType="regular" />
           <entry location="images" fileType="regular" />
-          <entry location="tomcat" fileType="regular" />
+          <entry location="infrastructure/tomcat" fileType="regular" />
           <entry location="first_run" fileType="regular" />
-          <entry location="license.rtf" fileType="regular" />
           <entry location="ibpworkbench_launcher.jar" fileType="regular" />
           <entry location="ibpworkbench" fileType="launcher" />
         </include>
@@ -105,7 +106,7 @@
       <component name="${i18n:documentation}" id="209" customizedId="documentation" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="documentation" fileType="regular" />
+          <entry location="cws_docs" fileType="regular" />
         </include>
         <dependencies />
       </component>

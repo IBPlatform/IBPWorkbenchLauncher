@@ -100,12 +100,13 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
     }
     
     protected boolean registerCrops(InstallerContext context, Connection conn) {
-        String dropWorkbenchCropSql = "DROP TABLE IF EXISTS workbench.workbench_crops";
-        String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crops(\n"
-                                      + "   crop_name VARCHAR(32) NOT NULL\n"
+        String dropWorkbenchCropSql = "DROP TABLE IF EXISTS workbench.workbench_crop";
+        String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crop(\n"
+                                      + "    crop_name VARCHAR(32) NOT NULL\n"
+                                      + "   ,central_db_name VARCHAR(64)\n"
                                       + "   ,PRIMARY KEY(crop_name)\n"
                                       + ") ENGINE=InnoDB";
-        String insertCropSql = "INSERT INTO workbench.workbench_crops (crop_name) VALUES (?)";
+        String insertCropSql = "INSERT INTO workbench.workbench_crop (crop_name, central_db_name) VALUES (?, ?)";
         
         boolean cassava = isComponentSelected(context, CROP_CASSAVA);
         boolean chickpea = isComponentSelected(context, CROP_CHICKPEA);
@@ -125,26 +126,32 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
             PreparedStatement pstmt = conn.prepareStatement(insertCropSql);
             if (cassava) {
                 pstmt.setString(1, "CASSAVA");
+                pstmt.setString(2, "ibdb_cassava_central");
                 pstmt.executeUpdate();
             }
             if (chickpea) {
                 pstmt.setString(1, "CHICKPEA");
+                pstmt.setString(2, "ibdb_chickpea_central");
                 pstmt.executeUpdate();
             }
             if (cowpea) {
                 pstmt.setString(1, "COWPEA");
+                pstmt.setString(2, "ibdb_cowpea_central");
                 pstmt.executeUpdate();
             }
             if (maize) {
                 pstmt.setString(1, "MAIZE");
+                pstmt.setString(2, "ibdb_maize_central");
                 pstmt.executeUpdate();
             }
             if (rice) {
                 pstmt.setString(1, "RICE");
+                pstmt.setString(2, "ibdb_rice_central");
                 pstmt.executeUpdate();
             }
             if (wheat) {
                 pstmt.setString(1, "WHEAT");
+                pstmt.setString(2, "ibdb_wheat_central");
                 pstmt.executeUpdate();
             }
             pstmt.close();

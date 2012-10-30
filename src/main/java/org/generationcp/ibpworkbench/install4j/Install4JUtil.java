@@ -17,12 +17,25 @@ public abstract class Install4JUtil {
     public final static long MYSQL_CONNECT_TRIES = 6;
     public final static int MYSQL_LOG_DELETE_TRIES = 30;
     
-    private final static String MY_INI_PATH = "mysql/my.ini";
-    private final static String MY_INI_BAK_PATH = "mysql/my.ini.bak";
+    public static String getMysqlDirPath(Context context) {
+        return (String) context.getCompilerVariable("gcp.mysql.dir");
+    }
+    
+    public static String getMysqlIniPath(Context context) {
+        return getMysqlDirPath(context) + "my.ini";
+    }
+    
+    public static String getMysqlIniBakPath(Context context) {
+        return getMysqlDirPath(context) + "my.ini.bak";
+    }
+    
+    public static String getMysqlBinPath(Context context) {
+        return getMysqlDirPath(context) + "bin";
+    }
     
     public static boolean startMySQL(Context context) {
         File installDir = context.getInstallationDirectory();
-        File mysqlBinPath = new File(installDir, "mysql/bin");
+        File mysqlBinPath = new File(installDir, getMysqlBinPath(context));
         
         String mysqldExeName = "mysqld.exe";
         String myIniPath =  "../my.ini";
@@ -89,7 +102,7 @@ public abstract class Install4JUtil {
     }
     
     public static boolean stopMySQL(Context context) {
-        File mysqlBinPath = new File(context.getInstallationDirectory(), "mysql/bin");
+        File mysqlBinPath = new File(context.getInstallationDirectory(), getMysqlBinPath(context));
         String mysqlAdminExeName = "mysqladmin.exe";
         String myIniPath =  "../my.ini";
         
@@ -160,8 +173,8 @@ public abstract class Install4JUtil {
     }
     
     public static boolean optimizeMySQLConfiguration(Context context) {
-        File mysqlIniPath = new File(context.getInstallationDirectory(), MY_INI_PATH);
-        File mysqlIniBakPath = new File(context.getInstallationDirectory(), MY_INI_BAK_PATH);
+        File mysqlIniPath = new File(context.getInstallationDirectory(), getMysqlIniPath(context));
+        File mysqlIniBakPath = new File(context.getInstallationDirectory(), getMysqlIniBakPath(context));
         
         Long ram = (Long) context.getVariable("gcp.mysql.ram.size");
         if (ram == null) {
@@ -202,7 +215,7 @@ public abstract class Install4JUtil {
         // The maximum size of a query packet the server can handle as well as
         // maximum query size server can process (Important when working with
         // large BLOBs). enlarged dynamically, for each connection.
-        long maxAllowedPacket = 16;
+        long maxAllowedPacket = 32;
         
         // Sort buffer is used to perform sorts for some ORDER BY and GROUP BY
         // queries. If sorted data does not fit into the sort buffer, a disk
@@ -286,29 +299,30 @@ public abstract class Install4JUtil {
         long innodbLogFileSize = 64;
         
         String optimizedMyIni = "[client]\r\n"
-                              + "port           = 13306\r\n"
-                              + "socket         = /tmp/mysql.sock\r\n"
+                              + "port                       = 13306\r\n"
+                              + "socket                     = /tmp/mysql.sock\r\n"
                               + "[mysqld]\r\n"
-                              + "port       = 13306\r\n"
-                              + "socket      = /tmp/mysql.sock\r\n"
+                              + "port                       = 13306\r\n"
+                              + "socket                     = /tmp/mysql.sock\r\n"
+                              + "datadir                    =../../../data/\r\n"
                               + "skip-external-locking\r\n"
-                              + "key_buffer_size = %dM\r\n"
-                              + "bulk_insert_buffer_size = %dM\r\n"
-                              + "max_allowed_packet = %dM\r\n"
-                              + "sort_buffer_size = %dM\r\n"
-                              + "read_buffer_size = %dM\r\n"
-                              + "read_rnd_buffer_size = %dM\r\n"
-                              + "myisam_sort_buffer_size = %dM\r\n"
-                              + "thread_cache_size = %d\r\n"
-                              + "thread_concurrency = %d\r\n"
-                              + "query_cache_size= %dM\r\n"
-                              + "innodb_buffer_pool_size = %dM\r\n"
-                              + "innodb_data_file_path = ibdata1:10M:autoextend\r\n"
-                              + "innodb_write_io_threads = %d\r\n"
-                              + "innodb_read_io_threads = %d\r\n"
-                              + "innodb_log_buffer_size = %dM\r\n"
-                              + "innodb_log_file_size = %dM\r\n"
-                              + "innodb_fast_shutdown = 0\r\n"
+                              + "key_buffer_size            = %dM\r\n"
+                              + "bulk_insert_buffer_size    = %dM\r\n"
+                              + "max_allowed_packet         = %dM\r\n"
+                              + "sort_buffer_size           = %dM\r\n"
+                              + "read_buffer_size           = %dM\r\n"
+                              + "read_rnd_buffer_size       = %dM\r\n"
+                              + "myisam_sort_buffer_size    = %dM\r\n"
+                              + "thread_cache_size          = %d\r\n"
+                              + "thread_concurrency         = %d\r\n"
+                              + "query_cache_size           = %dM\r\n"
+                              + "innodb_buffer_pool_size    = %dM\r\n"
+                              + "innodb_data_file_path      = ibdata1:10M:autoextend\r\n"
+                              + "innodb_write_io_threads    = %d\r\n"
+                              + "innodb_read_io_threads     = %d\r\n"
+                              + "innodb_log_buffer_size     = %dM\r\n"
+                              + "innodb_log_file_size       = %dM\r\n"
+                              + "innodb_fast_shutdown       = 0\r\n"
                               ;
         
         String fileContents = String.format(optimizedMyIni, keyBufferSize
@@ -343,8 +357,8 @@ public abstract class Install4JUtil {
     }
     
     public static boolean revertMySQLConfiguration(Context context) {
-        File mysqlIniPath = new File(context.getInstallationDirectory(), MY_INI_PATH);
-        File mysqlIniBakPath = new File(context.getInstallationDirectory(), MY_INI_BAK_PATH);
+        File mysqlIniPath = new File(context.getInstallationDirectory(), getMysqlIniPath(context));
+        File mysqlIniBakPath = new File(context.getInstallationDirectory(), getMysqlIniBakPath(context));
         
         if (!mysqlIniPath.delete()) {
             Util.showErrorMessage(context.getMessage("installation_error"));

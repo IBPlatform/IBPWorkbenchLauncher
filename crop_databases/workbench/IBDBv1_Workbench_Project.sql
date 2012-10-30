@@ -13,8 +13,12 @@ workbench_project_member
 ,workbench_dataset
 ;
 
-CREATE TABLE IF NOT EXISTS workbench.workbench_crops(
+-- 
+-- workbench crops
+--
+CREATE TABLE IF NOT EXISTS workbench_crop(
      crop_name VARCHAR(32) NOT NULL
+    ,central_db_name VARCHAR(64)
     ,PRIMARY KEY(crop_name)
 ) ENGINE=InnoDB;
 
@@ -235,13 +239,16 @@ CREATE TABLE workbench_project (
      project_id                 INT UNSIGNED AUTO_INCREMENT NOT NULL
     ,user_id                    INT UNSIGNED NOT NULL
     ,project_name               VARCHAR(255) NOT NULL
-    ,target_due_date            DATE
+    ,start_date                 DATE
     ,template_id                INT UNSIGNED NOT NULL
     ,template_modified          BOOL NOT NULL DEFAULT FALSE
-    ,crop_type                  ENUM('CHICKPEA', 'COWPEA', 'MAIZE', 'RICE', 'WHEAT', 'CASSAVA')
+    ,crop_type                  VARCHAR(32)
+    ,local_db_name              VARCHAR(64)
+    ,central_db_name            VARCHAR(64)
     ,last_open_date             TIMESTAMP NULL
     ,PRIMARY KEY(project_id)
     ,CONSTRAINT fk_project_1 FOREIGN KEY(template_id) REFERENCES workbench_workflow_template(template_id) ON UPDATE CASCADE
+    ,CONSTRAINT fk_project_2 FOREIGN KEY(crop_type) REFERENCES workbench_crop(crop_name) ON UPDATE CASCADE
 )
 ENGINE=InnoDB;
 
@@ -291,6 +298,7 @@ CREATE TABLE workbench_dataset (
     ,CONSTRAINT fk_workbench_dataset_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
 )
 ENGINE=InnoDB;
+
 -- 
 --  Add initial data.
 -- 
@@ -326,12 +334,14 @@ INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id)
 -- NATIVE tools should use a path relative to Tomcat's bin folder.
 INSERT INTO workbench_tool (name, title, tool_type, path) VALUES
  ('germplasm_browser', 'Browse Germplasm Information', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
-,('germplasm_phenotypic', 'Retrieve Germplasm by Phenotypic Data', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('study_browser', 'Browse Studies and Datasets', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('germplasm_list_browser', 'Browse Germplasm Lists', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
 ,('gdms', 'GDMS', 'WEB', 'http://localhost:18080/ibpworkbench/VAADIN/themes/gcp-default/layouts/load_gdms.html')
 ,('fieldbook', 'FieldBook', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
 ,('optimas', 'OptiMAS', 'NATIVE', 'tools/optimas/optimas.exe')
 ,('breeding_manager', 'Breeding Manager', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
 ,('breeding_view', 'Breeding View', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
+,('mbdt', 'Molecular Breeding Design Tool', 'NATIVE', 'tools/mbdt/MBDTversion1.0.exe')
 ;
 
 
@@ -371,3 +381,290 @@ CREATE INDEX users_idx02 ON users (personid);
 CREATE INDEX users_idx03 on users (userid);    -- added 20091103 mhabito: define regular index on column(s) with UNIQUE KEY constraint
 --
 
+-- 
+--  The breeding method/s associated to a workbench project
+-- 
+CREATE TABLE workbench_project_method (
+     project_method_id           INT UNSIGNED AUTO_INCREMENT NOT NULL 
+    ,project_id                  INT UNSIGNED NOT NULL
+    ,method_id                   INT(11) NOT NULL
+    ,PRIMARY KEY(project_method_id)
+    ,UNIQUE(project_id, method_id)
+    ,CONSTRAINT fk_project_method_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
+)
+ENGINE=InnoDB;
+
+
+
+--
+-- The mapping of workbench users with corresponding ibdb local user.
+--
+DROP TABLE IF EXISTS workbench_ibdb_user_map;
+CREATE TABLE workbench_ibdb_user_map (
+     ibdb_user_map_id           INT UNSIGNED AUTO_INCREMENT NOT NULL
+    ,workbench_user_id          INT(11) NOT NULL
+    ,project_id                 INT UNSIGNED NOT NULL
+    ,ibdb_user_id               INT(11) NOT NULL
+    ,PRIMARY KEY(ibdb_user_map_id)
+)
+ENGINE=InnoDB;
+
+--
+-- table for mapping workbench_project with location
+--
+DROP TABLE IF EXISTS workbench_project_loc_map;
+CREATE TABLE workbench_project_loc_map (
+     id                      INT UNSIGNED AUTO_INCREMENT NOT NULL
+    ,project_id              INT UNSIGNED NOT NULL
+    ,location_id             INT UNSIGNED NOT NULL                
+    ,PRIMARY KEY(id)
+    ,CONSTRAINT fk_workbench_project_loc_map_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+
+
+DROP TABLE IF EXISTS workbench_project_activity; 
+CREATE TABLE workbench_project_activity (
+     project_activity_id	INT UNSIGNED AUTO_INCREMENT NOT NULL 
+    ,project_id				INT UNSIGNED NOT NULL
+    ,name					VARCHAR(128) NOT NULL
+    ,description			TEXT
+    ,user_id				INT(11) NOT NULL
+    ,date			DATE
+    ,PRIMARY KEY(project_activity_id)
+    ,CONSTRAINT fk_project_activity_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
+    ,CONSTRAINT fk_project_activity_2 FOREIGN KEY(user_id) REFERENCES users(userid) ON UPDATE CASCADE
+)
+ENGINE=InnoDB;
+
+
+
+
+-- 
+-- MAS Data into workflow tables
+-- 
+
+-- Insert MAS into workbench_workflow_template
+
+INSERT IGNORE INTO workbench_workflow_template(name, user_defined)
+VALUES('MAS', 0);
+
+-- Insert steps used in MAS into workbench_workflow_step
+
+INSERT IGNORE INTO workbench_workflow_step(name, title) VALUES
+('project_planning','Project Planning')
+,('population_development','Population Development')
+,('genotyping','Genotyping')
+,('field_trial_management','Field Trial Management')
+,('statistical_analysis','Statistical Analysis')
+,('breeding_decision','Breeding Decision');
+
+-- Insert actual MAS steps into workbench_workflow_template_step
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 1, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MAS' AND step.name = 'project_planning';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 2, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MAS' AND step.name = 'population_development';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 3, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MAS' AND step.name = 'genotyping';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 4, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MAS' AND step.name = 'field_trial_management';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 5, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MAS' AND step.name = 'statistical_analysis';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 6, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MAS' AND step.name = 'breeding_decision';
+
+
+--
+-- Insert MABC and Manager templates into workbench_workflow_template 
+--
+
+INSERT INTO workbench_workflow_template(name, user_defined)
+SELECT DISTINCT('MABC'), 0 FROM workbench_workflow_template
+WHERE NOT EXISTS (SELECT template_id FROM workbench_workflow_template WHERE name = 'MABC');
+
+INSERT INTO workbench_workflow_template(name, user_defined)
+SELECT DISTINCT('Manager'), 0 FROM workbench_workflow_template
+WHERE NOT EXISTS (SELECT template_id FROM workbench_workflow_template WHERE name = 'Manager');
+
+-- Insert steps used in MABC into workbench_workflow_step
+
+INSERT IGNORE INTO workbench_workflow_step(name, title) VALUES
+('project_planning','Project Planning')
+,('backcrossing','Backcrossing')
+,('genotyping','Genotyping')
+,('field_trial_management','Field Trial Management')
+,('statistical_analysis','Statistical Analysis')
+,('breeding_decision','Breeding Decision');
+
+-- Insert actual MABC steps into workbench_workflow_template_step
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 1, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MABC' AND step.name = 'project_planning';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 2, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MABC' AND step.name = 'backcrossing';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 3, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MABC' AND step.name = 'genotyping';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 4, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MABC' AND step.name = 'field_trial_management';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 5, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MABC' AND step.name = 'statistical_analysis';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 6, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'MABC' AND step.name = 'breeding_decision';
+
+-- Insert steps used in the Manager Workflow into workbench_workflow_step
+
+INSERT IGNORE INTO workbench_workflow_step(name, title) VALUES
+('project_planning','Project Planning')
+,('administration','Administration')
+,('analysis_pipeline','Analysis Pipeline')
+,('configuration','Configuration')
+,('breeding_management','Breeding Management')
+,('decision_support','Decision Support');
+
+-- Insert actual Manager Workflow steps into workbench_workflow_template_step
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 1, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'Manager' AND step.name = 'administration';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 2, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'Manager' AND step.name = 'configuration';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 3, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'Manager' AND step.name = 'project_planning';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 4, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'Manager' AND step.name = 'breeding_management';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 5, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'Manager' AND step.name = 'analysis_pipeline';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 6, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'Manager' AND step.name = 'decision_support';
+
+
+--
+-- WORKBENCH_ROLE and data
+-- 
+
+DROP TABLE IF EXISTS workbench_role;
+CREATE TABLE workbench_role (
+     role_id INT UNSIGNED AUTO_INCREMENT
+    ,name    VARCHAR(255)
+    ,workflow_template_id INT UNSIGNED NOT NULL
+    ,CONSTRAINT workbench_role_pk PRIMARY KEY(role_id)
+    ,CONSTRAINT fk_workbench_role_1 FOREIGN KEY(workflow_template_id) REFERENCES workbench_workflow_template(template_id) 
+)ENGINE=InnoDB;
+
+INSERT INTO workbench_role(name, workflow_template_id) 
+SELECT 'Manager', template_id from workbench_workflow_template WHERE name = 'Manager'
+AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'Manager' 
+                    AND workflow_template_id = (SELECT DISTINCT template_id 
+                                                FROM workbench_workflow_template WHERE name = 'Manager'));
+
+INSERT INTO workbench_role(name, workflow_template_id) 
+SELECT 'MARS Breeder', template_id from workbench_workflow_template WHERE name = 'MARS'
+AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'MARS Breeder' 
+                    AND workflow_template_id = (SELECT DISTINCT template_id 
+                                                FROM workbench_workflow_template WHERE name = 'MARS'));
+
+INSERT INTO workbench_role(name, workflow_template_id) 
+SELECT 'MAS Breeder', template_id from workbench_workflow_template WHERE name = 'MAS'
+AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'MAS Breeder' 
+                    AND workflow_template_id = (SELECT DISTINCT template_id 
+                                                FROM workbench_workflow_template WHERE name = 'MAS'));
+
+INSERT INTO workbench_role(name, workflow_template_id) 
+SELECT 'MABC Breeder', template_id from workbench_workflow_template WHERE name = 'MABC'
+AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'MABC Breeder' 
+                    AND workflow_template_id = (SELECT DISTINCT template_id 
+                                                FROM workbench_workflow_template WHERE name = 'MABC'));
+
+-- 
+--  The users/s associated to a workbench project
+-- 
+DROP TABLE IF EXISTS workbench_project_user;
+CREATE TABLE workbench_project_user (
+     project_user_id            INT UNSIGNED AUTO_INCREMENT NOT NULL 
+    ,project_id                 INT UNSIGNED NOT NULL
+    ,user_id                    INT(11) NOT NULL
+    ,role_id 					INT UNSIGNED NOT NULL
+    ,PRIMARY KEY(project_user_id)
+    ,UNIQUE(project_id, user_id, role_id)
+    ,CONSTRAINT fk_project_user_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
+    ,CONSTRAINT fk_project_user_2 FOREIGN KEY(role_id) REFERENCES workbench_role(role_id) ON UPDATE CASCADE
+)
+ENGINE=InnoDB;
+
+--
+-- Tool Configuration table
+--
+DROP TABLE IF EXISTS workbench_tool_config;
+CREATE TABLE workbench_tool_config(
+     config_id               INT UNSIGNED AUTO_INCREMENT NOT NULL
+    ,tool_id                 INT UNSIGNED NOT NULL
+    ,config_key              VARCHAR(255) NOT NULL
+    ,config_value            VARCHAR(255) NOT NULL
+    ,PRIMARY KEY(config_id)
+    ,UNIQUE KEY(tool_id, config_key)
+    ,CONSTRAINT fk_tool_config_1 FOREIGN KEY(tool_id) REFERENCES workbench_tool(tool_id) ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+--
+-- Workbench Runtime Data
+DROP TABLE IF EXISTS workbench_runtime_data;
+CREATE TABLE workbench_runtime_data (
+     id                     INT UNSIGNED AUTO_INCREMENT NOT NULL
+    ,user_id                INT(11)
+    ,PRIMARY KEY(id)
+) ENGINE=InnoDB;

@@ -64,8 +64,8 @@ public class Launcher {
     
     private final static int MAX_CONNECT_TRIES = 5;
     
-    private String mysqlBinDir = "mysql/bin";
-    private String tomcatDir = "tomcat";
+    private String mysqlBinDir = "infrastructure/mysql/bin";
+    private String tomcatDir = "infrastructure/tomcat";
     private String firstRunFilename = "first_run";
     
     private final static String TOMCAT_HOST = "localhost";
@@ -368,9 +368,11 @@ public class Launcher {
     protected void shutdownMysql() {
         LOG.trace("Stopping MySQL...");
         
-        if (mysqlProcess != null) {
-            mysqlProcess.destroy();
+        if (mysqlProcess == null) {
+            return;
         }
+        
+        mysqlProcess.destroy();
         
         try {
             mysqlProcess.waitFor();
@@ -558,7 +560,7 @@ public class Launcher {
     }
     
     public static void main(String[] args) {
-        if (!isTomcatRunning()) {
+        if (isTomcatRunning()) {
             try {
                 Program.launch(workbenchUrl);
             }
