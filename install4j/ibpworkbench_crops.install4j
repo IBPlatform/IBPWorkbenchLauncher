@@ -16,8 +16,9 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables>
-      <variable name="gcp.dist.dir" value="D:\dist" description="" category="" />
-      <variable name="gcp.installer.out.dir" value="D:\" description="" category="" />
+      <variable name="gcp.dist.dir" value="E:\dist" description="" category="" />
+      <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
+      <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
     </variables>
     <mergedProjects />
     <codeSigning macEnabled="false" macPkcs12File="" windowsEnabled="false" windowsKeySource="pvkAndSpc" windowsPvkFile="" windowsSpcFile="" windowsPkcs12File="" />
@@ -26,18 +27,16 @@
     <filesets />
     <roots />
     <mountPoints>
-      <mountPoint id="606" root="" location="mysql" mode="755" />
       <mountPoint id="269" root="" location="database" mode="755" />
       <mountPoint id="203" root="" location="documentation" mode="755" />
       <mountPoint id="204" root="" location="images" mode="755" />
-      <mountPoint id="205" root="" location="tomcat" mode="755" />
       <mountPoint id="206" root="" location="tools" mode="755" />
       <mountPoint id="24" root="" location="" mode="755" />
+      <mountPoint id="988" root="" location="infrastructure" mode="755" />
+      <mountPoint id="989" root="" location="infrastructure/mysql" mode="755" />
+      <mountPoint id="990" root="" location="infrastructure/tomcat" mode="755" />
     </mountPoints>
     <entries>
-      <dirEntry mountPoint="606" file="${compiler:gcp.dist.dir}/mysql" overwriteMode="4" shared="false" fileMode="644" uninstallMode="2" overrideFileMode="false" overrideOverwriteMode="true" overrideUninstallMode="true" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
-        <exclude />
-      </dirEntry>
       <dirEntry mountPoint="269" file="${compiler:gcp.dist.dir}/crop_databases" overwriteMode="1" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="true" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
@@ -47,9 +46,6 @@
       <dirEntry mountPoint="204" file="${compiler:gcp.dist.dir}/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="205" file="${compiler:gcp.dist.dir}/tomcat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
-        <exclude />
-      </dirEntry>
       <dirEntry mountPoint="206" file="${compiler:gcp.dist.dir}/tools" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
@@ -57,6 +53,12 @@
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/license_zh.html" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/first_run" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/ibpworkbench_launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="989" file="${compiler:gcp.dist.dir}/infrastructure/mysql" overwriteMode="4" shared="false" fileMode="644" uninstallMode="2" overrideFileMode="false" overrideOverwriteMode="true" overrideUninstallMode="true" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="990" file="${compiler:gcp.dist.dir}/tomcat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
     </entries>
     <components>
       <component name="MySQL" id="686" customizedId="mysql" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">

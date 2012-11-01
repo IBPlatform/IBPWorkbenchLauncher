@@ -34,6 +34,7 @@
       <mountPoint id="605" root="" location="infrastructure" mode="755" />
       <mountPoint id="606" root="" location="infrastructure/tomcat" mode="755" />
       <mountPoint id="206" root="" location="tools" mode="755" />
+      <mountPoint id="673" root="" location="workspace" mode="755" />
       <mountPoint id="24" root="" location="" mode="755" />
     </mountPoints>
     <entries>
@@ -62,6 +63,7 @@
           <entry location="database" fileType="regular" />
           <entry location="images" fileType="regular" />
           <entry location="infrastructure/tomcat" fileType="regular" />
+          <entry location="workspace" fileType="regular" />
           <entry location="first_run" fileType="regular" />
           <entry location="ibpworkbench_launcher.jar" fileType="regular" />
           <entry location="ibpworkbench" fileType="launcher" />
@@ -431,6 +433,27 @@
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="org.generationcp.ibpworkbench.install4j.action.StopMySQLAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="738" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
+                      <void property="files">
+                        <array class="java.io.File" length="1">
+                          <void index="0">
+                            <object class="java.io.File">
+                              <string>database</string>
+                            </object>
+                          </void>
+                        </array>
+                      </void>
+                      <void property="recursive">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
                   </java>
                 </serializedBean>
                 <condition />

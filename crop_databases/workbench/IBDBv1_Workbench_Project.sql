@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS
-workbench_project_member
-,workbench_project_workflow_step
+workbench_project_workflow_step
 ,workbench_project
 ,workbench_workflow_step_tool
 ,workbench_workflow_template_step
@@ -16,6 +15,7 @@ workbench_project_member
 -- 
 -- workbench crops
 --
+
 CREATE TABLE IF NOT EXISTS workbench_crop(
      crop_name VARCHAR(32) NOT NULL
     ,central_db_name VARCHAR(64)
@@ -81,7 +81,8 @@ CREATE TABLE workbench_tool (
     ,PRIMARY KEY(tool_id)
     ,UNIQUE(name)
 )
-ENGINE=InnoDB;
+ENGINE=InnoDB;
+
 -- 
 --  A list of named "input" of a tool.
 --  "input_label" is the parameter name we could use as labels in screens.
@@ -278,15 +279,6 @@ ENGINE=InnoDB;
 --    We might need to create a separate table if we support it (I hope we don't).
 -- 
 
-CREATE TABLE workbench_project_member (
-     project_id             INT UNSIGNED
-    ,contact_id             INT UNSIGNED
-    ,CONSTRAINT fk_project_member_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
-)
-ENGINE=InnoDB;
-
-
-
 CREATE TABLE workbench_dataset (
      dataset_id             INT UNSIGNED AUTO_INCREMENT NOT NULL
     ,name                   VARCHAR(128) NOT NULL
@@ -384,6 +376,7 @@ CREATE INDEX users_idx03 on users (userid);    -- added 20091103 mhabito: define
 -- 
 --  The breeding method/s associated to a workbench project
 -- 
+DROP TABLE IF EXISTS workbench_project_method;
 CREATE TABLE workbench_project_method (
      project_method_id           INT UNSIGNED AUTO_INCREMENT NOT NULL 
     ,project_id                  INT UNSIGNED NOT NULL
@@ -633,16 +626,16 @@ AND NOT EXISTS (SELECT role_id FROM workbench_role
 -- 
 --  The users/s associated to a workbench project
 -- 
-DROP TABLE IF EXISTS workbench_project_user;
-CREATE TABLE workbench_project_user (
+DROP TABLE IF EXISTS workbench_project_user_role;
+CREATE TABLE workbench_project_user_role (
      project_user_id            INT UNSIGNED AUTO_INCREMENT NOT NULL 
     ,project_id                 INT UNSIGNED NOT NULL
     ,user_id                    INT(11) NOT NULL
     ,role_id 					INT UNSIGNED NOT NULL
     ,PRIMARY KEY(project_user_id)
     ,UNIQUE(project_id, user_id, role_id)
-    ,CONSTRAINT fk_project_user_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
-    ,CONSTRAINT fk_project_user_2 FOREIGN KEY(role_id) REFERENCES workbench_role(role_id) ON UPDATE CASCADE
+    ,CONSTRAINT fk_project_user_role_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
+    ,CONSTRAINT fk_project_user_role_2 FOREIGN KEY(role_id) REFERENCES workbench_role(role_id) ON UPDATE CASCADE
 )
 ENGINE=InnoDB;
 
