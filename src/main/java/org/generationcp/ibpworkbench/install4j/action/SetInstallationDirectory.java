@@ -11,7 +11,11 @@ public class SetInstallationDirectory extends AbstractInstallAction {
     private static final long serialVersionUID = 1L;
 
     public boolean install(InstallerContext context) throws UserCanceledException {
-        String workbenchCentralApplicationId = "3567-7088-8902-2771";
+        String workbenchCentralApplicationId = context.getCompilerVariable("gcp.application.id");
+        if (workbenchCentralApplicationId == null) {
+            Util.showErrorMessage("gcp.application.id compiler variable has not been declared. Please request for a new installer");
+        }
+        
         ApplicationInfo[] appInfoArray = ApplicationRegistry.getApplicationInfoById(workbenchCentralApplicationId);
         
         if (appInfoArray.length == 0) {
