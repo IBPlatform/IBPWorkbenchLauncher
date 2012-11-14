@@ -561,6 +561,8 @@ public class Launcher {
     
     public static void main(String[] args) {
         if (isTomcatRunning()) {
+            LOG.info("Tomcat is already running. Launching workbench instead...");
+            
             try {
                 Program.launch(workbenchUrl);
             }
