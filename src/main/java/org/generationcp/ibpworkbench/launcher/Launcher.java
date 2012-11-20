@@ -35,6 +35,8 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -71,7 +73,7 @@ public class Launcher {
     private final static String TOMCAT_HOST = "localhost";
     private final static int TOMCAT_PORT = 18080;
     
-    private final static String workbenchUrl = "http://" + TOMCAT_HOST + ":" + TOMCAT_PORT + "/ibpworkbench/";
+    private final static String workbenchUrl = "http://" + TOMCAT_HOST + ":" + TOMCAT_PORT + "/ibpworkbench/main";
     
     private Display display;
     private Shell shell;
@@ -85,6 +87,7 @@ public class Launcher {
     private TomcatServer tomcatServer;
     
     private Label splashLabel;
+    private Image splashImage;
     private Label progressLabel;
     private ProgressBar progressBar;
     
@@ -109,13 +112,16 @@ public class Launcher {
         centerShellToPrimaryMonitor(shell);
         
         // add the splash image
+        splashImage = new Image(display, "images/splash.png");
         splashLabel = new Label(shell, SWT.NONE);
-        splashLabel.setImage(new Image(display, "images/splash.png"));
+        splashLabel.setImage(splashImage);
         
         // add progress label
         progressLabel = new Label(shell, SWT.NONE);
         progressLabel.moveAbove(splashLabel);
         progressLabel.setText("Loading...");
+        progressLabel.setFont(new Font(display, "Helvetica", 12, SWT.ITALIC));
+        progressLabel.setForeground(new Color(null, 0, 0, 178));
         
         // add the progress bar
         progressBar = new ProgressBar(shell, SWT.HORIZONTAL | SWT.INDETERMINATE);
@@ -161,13 +167,13 @@ public class Launcher {
         
         final int vMargin = 5;
         final int hMargin = 40;
-        //Point progressLabelPreferredSize = progressLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        Point progressLabelPreferredSize = progressLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         Point progressBarPreferredSize = progressBar.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         
-        //int progressLabelY = shellBounds.height - margin - progressBarPreferredSize.y - margin - progressLabelPreferredSize.y;
+        int progressLabelY = shellBounds.height - vMargin - progressBarPreferredSize.y - vMargin - progressLabelPreferredSize.y;
         int progressBarY = shellBounds.height - vMargin - progressBarPreferredSize.y;
         
-        //progressLabel.setBounds(margin, progressLabelY, shellBounds.width - (2* margin), progressLabelPreferredSize.y);
+        progressLabel.setBounds(hMargin, progressLabelY, shellBounds.width - (2* hMargin), progressLabelPreferredSize.y);
         progressBar.setBounds(hMargin, progressBarY, shellBounds.width - (2 * hMargin), progressBarPreferredSize.y);
     }
     
@@ -224,6 +230,18 @@ public class Launcher {
             @Override
             public void shellClosed(ShellEvent e) {
                 launchMySQLAndTomcat();
+            }
+        });
+        
+        progressLabel.addPaintListener(new PaintListener() {
+            
+            public void paintControl(PaintEvent e) {
+                GC gc = e.gc;
+                
+                Rectangle bounds = progressLabel.getBounds();
+                gc.drawImage(splashImage, bounds.x, bounds.y, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height);
+                
+                gc.drawText(progressLabel.getText(), 0, 0, true);
             }
         });
     }
@@ -526,16 +544,30 @@ public class Launcher {
         }
     }
     
+    protected void setProgressText(final String progressText) {
+        display.syncExec(new Runnable() {
+            
+            public void run() {
+                progressLabel.setText(progressText);
+                progressLabel.redraw();
+            }
+        });
+    }
+    
     private class StartupThread extends Thread {
         @Override
         public void run() {
+            setProgressText("Renaming icis.ini...");
+            
             // rename %TEMP%/icis.ini
             renameIcisIni();
 
             // initialize MySQL
+            setProgressText("Starting MySQL...");
             initializeMysql();
 
             // initialize Tomcat
+            setProgressText("Starting Tomcat...");
             initializeTomcat();
 
             // launch the workbench url
