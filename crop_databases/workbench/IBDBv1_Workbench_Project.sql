@@ -76,7 +76,8 @@ CREATE TABLE workbench_tool (
      tool_id                INT UNSIGNED AUTO_INCREMENT NOT NULL
     ,name                   VARCHAR(128) NOT NULL
     ,title                  VARCHAR(255) NOT NULL
-    ,tool_type              ENUM('WEB', 'NATIVE')
+    ,version                VARCHAR(16) NOT NULL
+    ,tool_type              ENUM('WEB', 'WEB_WITH_LOGIN', 'NATIVE')
     ,path                   TEXT
     ,PRIMARY KEY(tool_id)
     ,UNIQUE(name)
@@ -324,16 +325,16 @@ INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id)
 -- Notes on paths:
 -- WEB tools should use the release port.
 -- NATIVE tools should use a path relative to Tomcat's bin folder.
-INSERT INTO workbench_tool (name, title, tool_type, path) VALUES
- ('germplasm_browser', 'Browse Germplasm Information', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
-,('study_browser', 'Browse Studies and Datasets', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
-,('germplasm_list_browser', 'Browse Germplasm Lists', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
-,('gdms', 'GDMS', 'WEB', 'http://localhost:18080/ibpworkbench/VAADIN/themes/gcp-default/layouts/load_gdms.html')
-,('fieldbook', 'FieldBook', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
-,('optimas', 'OptiMAS', 'NATIVE', 'tools/optimas/optimas.exe')
-,('breeding_manager', 'Breeding Manager', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
-,('breeding_view', 'Breeding View', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
-,('mbdt', 'Molecular Breeding Design Tool', 'NATIVE', 'tools/mbdt/MBDTversion1.0.exe')
+INSERT INTO workbench_tool (name, title, version, tool_type, path) VALUES
+ ('germplasm_browser', 'Browse Germplasm Information', '1.1.1', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
+,('study_browser', 'Browse Studies and Datasets', '1.1.1', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.1', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
+,('gdms', 'GDMS', '1.0', 'WEB_WITH_LOGIN', 'http://localhost:18080/GDMS/login.do')
+,('fieldbook', 'FieldBook', '2.0.0', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
+,('optimas', 'OptiMAS', '1.3', 'NATIVE', 'tools/optimas/optimas.exe')
+,('breeding_manager', 'Breeding Manager', '2.0.0', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
+,('breeding_view', 'Breeding View', 'Alpha Version', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
+,('mbdt', 'Molecular Breeding Design Tool', '1.0', 'NATIVE', 'tools/mbdt/MBDTversion1.0.exe')
 ;
 
 
