@@ -303,11 +303,11 @@ INSERT INTO workbench_workflow_step (step_id, name, title) VALUES
 ,(2, 'population_management', 'Population Management')
 ,(3, 'field_trial_management', 'Field Trial Management')
 ,(4, 'genotyping', 'Genotyping')
-,(5, 'qtl_analysis', 'QTL Analysis')
-,(6, 'ideotype_design', 'Ideotype Design')
-,(7, 'plant_selection', 'Plant Selection')
-,(8, 'population', 'Population')
-,(9, 'project_completion', 'Project Completion')
+,(5, 'phenotypic_analysis', 'Phenotypic Analysis')
+,(6, 'qtl_analysis', 'QTL Analysis')
+,(7, 'qtl_selection', 'QTL Selection')
+,(8, 'recombination_cycle', 'Recombination Cycle')
+,(9, 'final_breeding_decision', 'Final Breeding Decision')
 ;
 
 INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id) VALUES
@@ -326,9 +326,9 @@ INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id)
 -- WEB tools should use the release port.
 -- NATIVE tools should use a path relative to Tomcat's bin folder.
 INSERT INTO workbench_tool (name, title, version, tool_type, path) VALUES
- ('germplasm_browser', 'Browse Germplasm Information', '1.1.1', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
-,('study_browser', 'Browse Studies and Datasets', '1.1.1', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
-,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.1', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
+ ('germplasm_browser', 'Browse Germplasm Information', '1.1.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
+,('study_browser', 'Browse Studies and Datasets', '1.1.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
 ,('gdms', 'GDMS', '1.0', 'WEB_WITH_LOGIN', 'http://localhost:18080/GDMS/login.do')
 ,('fieldbook', 'FieldBook', '2.0.0', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
 ,('optimas', 'OptiMAS', '1.3', 'NATIVE', 'tools/optimas/optimas.exe')
@@ -410,7 +410,7 @@ DROP TABLE IF EXISTS workbench_project_loc_map;
 CREATE TABLE workbench_project_loc_map (
      id                      INT UNSIGNED AUTO_INCREMENT NOT NULL
     ,project_id              INT UNSIGNED NOT NULL
-    ,location_id             INT UNSIGNED NOT NULL                
+    ,location_id             INT(11) NOT NULL               
     ,PRIMARY KEY(id)
     ,CONSTRAINT fk_workbench_project_loc_map_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -432,7 +432,50 @@ CREATE TABLE workbench_project_activity (
 ENGINE=InnoDB;
 
 
+-- 
+-- Conventional Breeding Data into workflow tables
+-- 
 
+-- Insert Conventional Breeding (CB) into workbench_workflow_template
+
+INSERT IGNORE INTO workbench_workflow_template(name, user_defined)
+VALUES('CB', 0);
+
+-- Insert steps used in MAS into workbench_workflow_step
+
+INSERT IGNORE INTO workbench_workflow_step(name, title) VALUES
+('project_planning','Project Planning')
+,('population_development','Population Development')
+,('field_trial_management','Field Trial Management')
+,('statistical_analysis','Statistical Analysis')
+,('breeding_decision','Breeding Decision');
+
+-- Insert actual CB steps into workbench_workflow_template_step
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 1, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'CB' AND step.name = 'project_planning';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 2, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'CB' AND step.name = 'population_development';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 4, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'CB' AND step.name = 'field_trial_management';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 5, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'CB' AND step.name = 'statistical_analysis';
+
+INSERT IGNORE INTO workbench_workflow_template_step(template_id, step_number, step_id)
+SELECT template_id, 6, step_id 
+FROM workbench_workflow_template template, workbench_workflow_step step
+WHERE template.name = 'CB' AND step.name = 'breeding_decision';
 
 -- 
 -- MAS Data into workflow tables
@@ -624,6 +667,12 @@ AND NOT EXISTS (SELECT role_id FROM workbench_role
                     AND workflow_template_id = (SELECT DISTINCT template_id 
                                                 FROM workbench_workflow_template WHERE name = 'MABC'));
 
+INSERT INTO workbench_role(name, workflow_template_id) 
+SELECT 'CB Breeder', template_id from workbench_workflow_template WHERE name = 'CB'
+AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'CB Breeder' 
+                    AND workflow_template_id = (SELECT DISTINCT template_id 
+                                                FROM workbench_workflow_template WHERE name = 'CB'));                                            
 -- 
 --  The users/s associated to a workbench project
 -- 
@@ -639,6 +688,14 @@ CREATE TABLE workbench_project_user_role (
     ,CONSTRAINT fk_project_user_role_2 FOREIGN KEY(role_id) REFERENCES workbench_role(role_id) ON UPDATE CASCADE
 )
 ENGINE=InnoDB;
+
+-- Workbench Settings
+DROP TABLE IF EXISTS workbench_setting;
+CREATE TABLE workbench_setting (
+     setting_id                 INT UNSIGNED AUTO_INCREMENT NOT NULL
+    ,installation_directory     VARCHAR(255)
+    ,PRIMARY KEY(setting_id)
+) ENGINE=InnoDB;
 
 --
 -- Tool Configuration table

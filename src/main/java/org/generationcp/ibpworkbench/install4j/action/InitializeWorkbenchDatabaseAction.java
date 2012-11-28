@@ -7,6 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -50,8 +51,9 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         Object[] workbenchTitleParam = new Object[]{ context.getMessage("workbench") };
         
         // create the database and user
+        Statement stmt = null;
         try {
-            Statement stmt = conn.createStatement();
+            stmt = conn.createStatement();
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS workbench");
             stmt.executeUpdate("GRANT ALL ON workbench.* TO 'workbench'@'localhost' IDENTIFIED BY 'workbench'");
             stmt.executeUpdate("USE workbench");
@@ -59,6 +61,16 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         catch (SQLException e1) {
             Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
             return false;
+        }
+        finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                }
+                catch (SQLException e) {
+                    // intentionally empty
+                }
+            }
         }
         
         // show installation error if the crop database directory does not exist
@@ -107,6 +119,28 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
                     catch (IOException e) {
                         e.printStackTrace();
                     }
+                }
+            }
+        }
+        
+        // set the installation directory
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement("INSERT INTO workbench_setting(installation_directory) VALUES (?);");
+            pstmt.setString(1, context.getInstallationDirectory().getAbsolutePath());
+            pstmt.executeUpdate();
+        }
+        catch (SQLException e1) {
+            Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+            return false;
+        }
+        finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                }
+                catch (SQLException e) {
+                    // intentionally empty
                 }
             }
         }
