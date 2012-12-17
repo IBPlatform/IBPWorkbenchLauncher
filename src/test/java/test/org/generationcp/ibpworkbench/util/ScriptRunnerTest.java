@@ -125,9 +125,6 @@ public class ScriptRunnerTest {
             catch (IOException e) {
                 exception = e;
             }
-            catch (SQLException e) {
-                exception = e;
-            }
             finally {
                 if (br != null) {
                     try {

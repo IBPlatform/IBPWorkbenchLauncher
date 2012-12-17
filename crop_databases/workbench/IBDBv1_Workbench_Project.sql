@@ -326,15 +326,14 @@ INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id)
 -- WEB tools should use the release port.
 -- NATIVE tools should use a path relative to Tomcat's bin folder.
 INSERT INTO workbench_tool (name, title, version, tool_type, path) VALUES
- ('germplasm_browser', 'Browse Germplasm Information', '1.1.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
-,('study_browser', 'Browse Studies and Datasets', '1.1.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
-,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
+ ('germplasm_browser', 'Browse Germplasm Information', '1.1.2.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
+,('study_browser', 'Browse Studies and Datasets', '1.1.2.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
 ,('gdms', 'GDMS', '1.0', 'WEB_WITH_LOGIN', 'http://localhost:18080/GDMS/login.do')
 ,('fieldbook', 'FieldBook', '2.0.0', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
 ,('optimas', 'OptiMAS', '1.3', 'NATIVE', 'tools/optimas/optimas.exe')
 ,('breeding_manager', 'Breeding Manager', '2.0.0', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
-,('breeding_view', 'Breeding View', 'Alpha Version', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
-,('mbdt', 'Molecular Breeding Design Tool', '1.0', 'NATIVE', 'tools/mbdt/MBDTversion1.0.exe')
+,('breeding_view', 'Breeding View', '1.1.0.8820', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
 ;
 
 
@@ -635,44 +634,53 @@ CREATE TABLE workbench_role (
      role_id INT UNSIGNED AUTO_INCREMENT
     ,name    VARCHAR(255)
     ,workflow_template_id INT UNSIGNED NOT NULL
+    ,role_label VARCHAR(255)
+    ,label_order INT
     ,CONSTRAINT workbench_role_pk PRIMARY KEY(role_id)
     ,CONSTRAINT fk_workbench_role_1 FOREIGN KEY(workflow_template_id) REFERENCES workbench_workflow_template(template_id) 
 )ENGINE=InnoDB;
 
-INSERT INTO workbench_role(name, workflow_template_id) 
-SELECT 'Manager', template_id from workbench_workflow_template WHERE name = 'Manager'
-AND NOT EXISTS (SELECT role_id FROM workbench_role 
-                WHERE name = 'Manager' 
-                    AND workflow_template_id = (SELECT DISTINCT template_id 
-                                                FROM workbench_workflow_template WHERE name = 'Manager'));
 
-INSERT INTO workbench_role(name, workflow_template_id) 
-SELECT 'MARS Breeder', template_id from workbench_workflow_template WHERE name = 'MARS'
-AND NOT EXISTS (SELECT role_id FROM workbench_role 
-                WHERE name = 'MARS Breeder' 
+INSERT INTO workbench_role(name, workflow_template_id, role_label, label_order) 
+SELECT 'CB Breeder', template_id, 'Conventional breeding (CB)', 1 
+FROM workbench_workflow_template WHERE name = 'CB'
+	AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'CB Breeder' 
                     AND workflow_template_id = (SELECT DISTINCT template_id 
-                                                FROM workbench_workflow_template WHERE name = 'MARS'));
+                                                FROM workbench_workflow_template WHERE name = 'CB'));                                            
 
-INSERT INTO workbench_role(name, workflow_template_id) 
-SELECT 'MAS Breeder', template_id from workbench_workflow_template WHERE name = 'MAS'
-AND NOT EXISTS (SELECT role_id FROM workbench_role 
+INSERT INTO workbench_role(name, workflow_template_id, role_label, label_order) 
+SELECT 'MAS Breeder', template_id, 'Breeding with marker assisted selection (MAS)', 2 
+FROM workbench_workflow_template WHERE name = 'MAS'
+	AND NOT EXISTS (SELECT role_id FROM workbench_role 
                 WHERE name = 'MAS Breeder' 
                     AND workflow_template_id = (SELECT DISTINCT template_id 
                                                 FROM workbench_workflow_template WHERE name = 'MAS'));
 
-INSERT INTO workbench_role(name, workflow_template_id) 
-SELECT 'MABC Breeder', template_id from workbench_workflow_template WHERE name = 'MABC'
-AND NOT EXISTS (SELECT role_id FROM workbench_role 
+INSERT INTO workbench_role(name, workflow_template_id, role_label, label_order) 
+SELECT 'MABC Breeder', template_id, 'Marker assisted backcrossing (MABC)', 3 
+FROM workbench_workflow_template WHERE name = 'MABC'
+	AND NOT EXISTS (SELECT role_id FROM workbench_role 
                 WHERE name = 'MABC Breeder' 
                     AND workflow_template_id = (SELECT DISTINCT template_id 
                                                 FROM workbench_workflow_template WHERE name = 'MABC'));
 
-INSERT INTO workbench_role(name, workflow_template_id) 
-SELECT 'CB Breeder', template_id from workbench_workflow_template WHERE name = 'CB'
-AND NOT EXISTS (SELECT role_id FROM workbench_role 
-                WHERE name = 'CB Breeder' 
+INSERT INTO workbench_role(name, workflow_template_id, role_label, label_order) 
+SELECT 'MARS Breeder', template_id, 'Marker assisted recurrent selection (MARS)', 4
+FROM workbench_workflow_template WHERE name = 'MARS'
+	AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'MARS Breeder' 
                     AND workflow_template_id = (SELECT DISTINCT template_id 
-                                                FROM workbench_workflow_template WHERE name = 'CB'));                                            
+                                                FROM workbench_workflow_template WHERE name = 'MARS'));
+
+INSERT INTO workbench_role(name, workflow_template_id, role_label, label_order) 
+SELECT 'Manager', template_id, 'Access all tools with a menu interface (MENU)', 5 
+FROM workbench_workflow_template WHERE name = 'Manager'
+	AND NOT EXISTS (SELECT role_id FROM workbench_role 
+                WHERE name = 'Manager' 
+                    AND workflow_template_id = (SELECT DISTINCT template_id 
+                                                FROM workbench_workflow_template WHERE name = 'Manager'));
+                                                
 -- 
 --  The users/s associated to a workbench project
 -- 
@@ -686,6 +694,21 @@ CREATE TABLE workbench_project_user_role (
     ,UNIQUE(project_id, user_id, role_id)
     ,CONSTRAINT fk_project_user_role_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
     ,CONSTRAINT fk_project_user_role_2 FOREIGN KEY(role_id) REFERENCES workbench_role(role_id) ON UPDATE CASCADE
+)
+ENGINE=InnoDB;
+
+-- Mapping table of workbench users to their mysql username and password for each of their projects
+DROP TABLE IF EXISTS workbench_project_user_mysql_account;
+CREATE TABLE workbench_project_user_mysql_account (
+	 project_user_mysql_id		INT UNSIGNED AUTO_INCREMENT NOT NULL
+	,project_id                 INT UNSIGNED NOT NULL
+    ,user_id                    INT(11) NOT NULL
+    ,mysql_username				VARCHAR(16) NOT NULL
+    ,mysql_password				VARCHAR(16) NOT NULL
+    ,PRIMARY KEY(project_user_mysql_id)
+    ,UNIQUE(project_id, user_id)
+    ,CONSTRAINT fk_project_user_mysql_1 FOREIGN KEY(project_id) REFERENCES workbench_project(project_id) ON UPDATE CASCADE
+    ,CONSTRAINT fk_project_user_mysql_2 FOREIGN KEY(user_id) REFERENCES users(userid) ON UPDATE CASCADE
 )
 ENGINE=InnoDB;
 
@@ -719,3 +742,15 @@ CREATE TABLE workbench_runtime_data (
     ,user_id                INT(11)
     ,PRIMARY KEY(id)
 ) ENGINE=InnoDB;
+
+-- Workbench user security questions
+DROP TABLE IF EXISTS workbench_security_question;
+CREATE TABLE workbench_security_question (
+     security_question_id   INT UNSIGNED AUTO_INCREMENT NOT NULL
+    ,user_id                INT NOT NULL
+    ,security_question      VARCHAR(255) NOT NULL
+    ,security_answer        VARCHAR(255) NOT NULL
+    ,PRIMARY KEY (security_question_id)
+    ,CONSTRAINT fk_security_question_1 FOREIGN KEY(user_id) REFERENCES users(userid) ON DELETE CASCADE
+) ENGINE=InnoDB;
+

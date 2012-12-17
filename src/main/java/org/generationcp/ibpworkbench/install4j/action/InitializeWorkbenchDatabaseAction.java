@@ -50,6 +50,21 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         File workbenchDatabaseDir = new File(context.getInstallationDirectory(), DATABASE_WORKBENCH_DATA_PATH);
         Object[] workbenchTitleParam = new Object[]{ context.getMessage("workbench") };
         
+        // check if the central database is already installed
+        boolean databaseExists = false;
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeQuery("SELECT * FROM workbench.workbench_project");
+            databaseExists = true;
+        }
+        catch (SQLException e1) {
+            databaseExists = false;
+        }
+        
+        if (databaseExists) {
+            return true;
+        }
+        
         // create the database and user
         Statement stmt = null;
         try {
@@ -100,12 +115,6 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
                 runner.runScript(br);
             }
             catch (IOException e1) {
-                e1.printStackTrace();
-                
-                Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
-                return false;
-            }
-            catch (SQLException e1) {
                 e1.printStackTrace();
                 
                 Util.showErrorMessage(context.getMessage("cannot_initialize_database"));

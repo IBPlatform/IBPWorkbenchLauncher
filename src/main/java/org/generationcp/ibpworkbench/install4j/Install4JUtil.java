@@ -1,6 +1,9 @@
 package org.generationcp.ibpworkbench.install4j;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -304,7 +307,7 @@ public abstract class Install4JUtil {
                               + "[mysqld]\r\n"
                               + "port                       = 13306\r\n"
                               + "socket                     = /tmp/mysql.sock\r\n"
-                              + "datadir                    =../../../data/\r\n"
+                              + "datadir                    =" + getMySqlDataPath(context) + "\r\n"
                               + "skip-external-locking\r\n"
                               + "key_buffer_size            = %dM\r\n"
                               + "bulk_insert_buffer_size    = %dM\r\n"
@@ -376,5 +379,71 @@ public abstract class Install4JUtil {
         }
         
         return true;
+    }
+    
+    public static String getMySqlDataPath(Context context) {
+        File installationDirectory = context.getInstallationDirectory();
+        
+        String mysqlDataPath = context.getCompilerVariable("gcp.mysql.data.dir");
+        if (mysqlDataPath == null) {
+            mysqlDataPath = "data";
+        }
+        
+        return installationDirectory.getAbsolutePath() + File.separator + mysqlDataPath;
+    }
+    
+    public static String getMySqlConfPath(Context context) {
+        File installationDirectory = context.getInstallationDirectory();
+        
+        String mysqlDataPath = context.getCompilerVariable("gcp.mysql.dir");
+        if (mysqlDataPath == null) {
+            mysqlDataPath = "infrastructure/mysql/";
+        }
+        
+        return installationDirectory.getAbsolutePath() + File.separator + mysqlDataPath + File.separator +  "my.ini";
+    }
+    
+    public static String stringWithContentsOFile(File file) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+        byte[] buff = new byte[1024 * 100];
+        
+        try {
+            int length = -1;
+            while ((length = bis.read(buff, 0, buff.length)) != -1) {
+                baos.write(buff, 0, length);
+            }
+        }
+        finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                }
+                catch (IOException e) {
+                }
+            }
+        }
+        
+        return new String(baos.toByteArray());
+    }
+    
+    public static void writeStringToFile(String string, File file) throws IOException {
+        FileOutputStream fos = null;
+        
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(string.getBytes());
+            fos.flush();
+        }
+        finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                }
+                catch (IOException e) {
+                }
+            }
+        }
     }
 }

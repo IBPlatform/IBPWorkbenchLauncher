@@ -248,6 +248,12 @@
                 <exclude name="readme.txt"/>
             </fileset>
         </copy>
+        <mkdir dir="${dist.dir}/crop_databases/local"/>
+        <copy todir="${dist.dir}/crop_databases/local" overwrite="yes" verbose="yes">
+            <fileset dir="${crop.database.dir}/local">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
         <mkdir dir="${dist.dir}/crop_databases/workbench"/>
         <copy todir="${dist.dir}/crop_databases/workbench" overwrite="yes" verbose="yes">
             <fileset dir="${crop.database.dir}/workbench">
@@ -325,7 +331,10 @@
         </copy>
     </target>
     
-    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-database-data,build-webapps,copy-webapps,copy-tools,copy-init-files,copy-documentation,copy-demo-scripts,copy-license" description="Copy necessary files on the distribution directory">
+    <target name="dist-create" depends="dist-mkdir,unzip-jre,unzip-mysql,unzip-tomcat,update-conf-files,copy-database-data,copy-tools,copy-init-files,copy-documentation,copy-demo-scripts,copy-license" description="Copy necessary files on the distribution directory">
+    </target>
+
+    <target name="dist-create-webapps" depends="build-webapps,copy-webapps">
     </target>
     
     <target name="dist-start-mysqld" description="Starts the MySQL daemon">

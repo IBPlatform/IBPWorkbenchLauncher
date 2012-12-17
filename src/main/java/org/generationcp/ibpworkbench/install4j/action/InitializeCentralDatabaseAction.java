@@ -11,11 +11,15 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.swing.JOptionPane;
+
+import org.generationcp.ibpworkbench.install4j.Crop;
 import org.generationcp.ibpworkbench.install4j.Install4JUtil;
 import org.generationcp.ibpworkbench.util.ScriptRunner;
 
 import com.install4j.api.Util;
 import com.install4j.api.actions.AbstractInstallAction;
+import com.install4j.api.context.Context;
 import com.install4j.api.context.InstallationComponentSetup;
 import com.install4j.api.context.InstallerContext;
 import com.install4j.api.context.UserCanceledException;
@@ -25,16 +29,10 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
     
     private final static String DATABASE_DATA_PATH = "database";
     private final static String DATABASE_CENTRAL_DATA_PATH = "database/central";
+    private final static String DATABASE_CENTRAL_COMMON_DATA_PATH = "database/central/common";
     
-    private final static String CROP_CASSAVA = "cassava";
-    private final static String CROP_CHICKPEA = "chickpea";
-    private final static String CROP_COWPEA = "cowpea";
-    private final static String CROP_MAIZE = "maize";
-    private final static String CROP_RICE = "rice";
-    private final static String CROP_WHEAT = "wheat";
-    
-    protected boolean isComponentSelected(InstallerContext context, String componentId) {
-        InstallationComponentSetup component = context.getInstallationComponentById(componentId);
+    protected boolean isComponentSelected(InstallerContext context, Crop crop) {
+        InstallationComponentSetup component = context.getInstallationComponentById(crop.getCropName());
         return component == null ? false : component.isSelected();
     }
     
@@ -47,32 +45,14 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
         
         try {
             // run scripts
-            boolean cassava = isComponentSelected(context, CROP_CASSAVA);
-            boolean chickpea = isComponentSelected(context, CROP_CHICKPEA);
-            boolean cowpea = isComponentSelected(context, CROP_COWPEA);
-            boolean maize = isComponentSelected(context, CROP_MAIZE);
-            boolean rice = isComponentSelected(context, CROP_RICE);
-            boolean wheat = isComponentSelected(context, CROP_WHEAT);
-
-            if (cassava) {
-                runScriptsForCrop(context, connection, CROP_CASSAVA);
+            for (Crop crop : Crop.values()) {
+                if (isComponentSelected(context, crop)) {
+                    boolean success = runScriptsForCrop(context, connection, crop);
+                    if (!success) {
+                        return false;
+                    }
+                }
             }
-            if (chickpea) {
-                runScriptsForCrop(context, connection, CROP_CHICKPEA);
-            }
-            if (cowpea) {
-                runScriptsForCrop(context, connection, CROP_COWPEA);
-            }
-            if (maize) {
-                runScriptsForCrop(context, connection, CROP_MAIZE);
-            }
-            if (rice) {
-                runScriptsForCrop(context, connection, CROP_RICE);
-            }
-            if (wheat) {
-                runScriptsForCrop(context, connection, CROP_WHEAT);
-            }
-
             // register installed crop types
             if (!registerCrops(context, connection)) {
                 return false;
@@ -99,63 +79,100 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
         return true;
     }
     
+    /**
+     * Register selected crops into workbench.workbench_crop table.
+     * We SHOULD AVOID introducing any side effect into any existing workbench_crop table.
+     * 
+     * @param context
+     * @param conn
+     * @return
+     */
     protected boolean registerCrops(InstallerContext context, Connection conn) {
-        String dropWorkbenchCropSql = "DROP TABLE IF EXISTS workbench.workbench_crop";
-        String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crop(\n"
-                                      + "    crop_name VARCHAR(32) NOT NULL\n"
-                                      + "   ,central_db_name VARCHAR(64)\n"
-                                      + "   ,PRIMARY KEY(crop_name)\n"
-                                      + ") ENGINE=InnoDB";
-        String insertCropSql = "INSERT INTO workbench.workbench_crop (crop_name, central_db_name) VALUES (?, ?)";
+        if (!executeUpdateOrError(context, conn, "CREATE DATABASE IF NOT EXISTS workbench")) {
+            return false;
+        }
         
-        boolean cassava = isComponentSelected(context, CROP_CASSAVA);
-        boolean chickpea = isComponentSelected(context, CROP_CHICKPEA);
-        boolean cowpea = isComponentSelected(context, CROP_COWPEA);
-        boolean maize = isComponentSelected(context, CROP_MAIZE);
-        boolean rice = isComponentSelected(context, CROP_RICE);
-        boolean wheat = isComponentSelected(context, CROP_WHEAT);
+        // create the workbench_crop table if it does not exist
+        String createWorkbenchCropIfNotExistSql = "CREATE TABLE IF NOT EXISTS workbench.workbench_crop(\n"
+                                                + "    crop_name VARCHAR(32) NOT NULL\n"
+                                                + "   ,central_db_name VARCHAR(64)\n"
+                                                + "   ,PRIMARY KEY(crop_name)\n"
+                                                + ") ENGINE=InnoDB";
+        if (!executeUpdateOrError(context, conn, createWorkbenchCropIfNotExistSql)) {
+            return false;
+        }
         
-        // create the database and user
+        // check if the workbench_crop table exists in the correct format
+        String workbenchCropCheckSql = "SELECT crop_name, central_db_name FROM workbench.workbench_crop LIMIT 1";
+        boolean workbenchCropCorrect = canExecuteQueries(context, conn, workbenchCropCheckSql);
+        
+        if (!workbenchCropCorrect) {
+            // if the workbench_crop table is in an incompatible format, drop and re-create it
+            String dropWorkbenchCropSql = "DROP TABLE IF EXISTS workbench.workbench_crop";
+            String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crop(\n"
+                                          + "    crop_name VARCHAR(32) NOT NULL\n"
+                                          + "   ,central_db_name VARCHAR(64)\n"
+                                          + "   ,PRIMARY KEY(crop_name)\n"
+                                          + ") ENGINE=InnoDB";
+            if (!executeUpdateOrError(context, conn, dropWorkbenchCropSql, createWorkbenchCropSql)) {
+                return false;
+            }
+        }
+        
+        String insertCropSql = "REPLACE INTO workbench.workbench_crop (crop_name, central_db_name) VALUES (?, ?)";
+        PreparedStatement pstmt = null;
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS workbench");
-            stmt.executeUpdate(dropWorkbenchCropSql);
-            stmt.executeUpdate(createWorkbenchCropSql);
-            stmt.close();
-            
-            PreparedStatement pstmt = conn.prepareStatement(insertCropSql);
-            if (cassava) {
-                pstmt.setString(1, "CASSAVA");
-                pstmt.setString(2, "ibdb_cassava_central");
-                pstmt.executeUpdate();
+            pstmt = conn.prepareStatement(insertCropSql);
+            if (!workbenchCropCorrect) {
+                // if workbench_crop table was recreated,
+                // we do our best effort to recreate the workbench_crop table
+                for (Crop crop : Crop.values()) {
+                    if (!centralDatabaseExists(conn, crop.getCentralDatabaseName())) {
+                        continue;
+                    }
+                    
+                    pstmt.setString(1, crop.getCropName());
+                    pstmt.setString(2, crop.getCentralDatabaseName());
+                    pstmt.executeUpdate();
+                }
             }
-            if (chickpea) {
-                pstmt.setString(1, "CHICKPEA");
-                pstmt.setString(2, "ibdb_chickpea_central");
-                pstmt.executeUpdate();
+            else {
+                // update workbench_crop with selected crops only
+                for (Crop crop : Crop.values()) {
+                    if (isComponentSelected(context, crop)) {
+                        pstmt.setString(1, crop.getCropName());
+                        pstmt.setString(2, crop.getCentralDatabaseName());
+                        pstmt.executeUpdate();
+                    }
+                }
             }
-            if (cowpea) {
-                pstmt.setString(1, "COWPEA");
-                pstmt.setString(2, "ibdb_cowpea_central");
-                pstmt.executeUpdate();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+            return false;
+        }
+        finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
             }
-            if (maize) {
-                pstmt.setString(1, "MAIZE");
-                pstmt.setString(2, "ibdb_maize_central");
-                pstmt.executeUpdate();
+            catch (SQLException e2) {
+                // intentionally empty
             }
-            if (rice) {
-                pstmt.setString(1, "RICE");
-                pstmt.setString(2, "ibdb_rice_central");
-                pstmt.executeUpdate();
+        }
+        
+        return true;
+    }
+    
+    protected boolean executeUpdateOrError(Context context, Connection conn, String... queries) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            for (String query : queries) {
+                stmt.executeUpdate(query);
             }
-            if (wheat) {
-                pstmt.setString(1, "WHEAT");
-                pstmt.setString(2, "ibdb_wheat_central");
-                pstmt.executeUpdate();
-            }
-            pstmt.close();
-            
             return true;
         }
         catch (SQLException e) {
@@ -163,28 +180,154 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
             Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
             return false;
         }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
     }
     
-    protected boolean runScriptsForCrop(InstallerContext context, Connection conn, String cropName) {
-        File centralDatabaseDir = new File(context.getInstallationDirectory(), DATABASE_CENTRAL_DATA_PATH);
-        File cropDir = new File(centralDatabaseDir, cropName);
+    protected boolean executeQueryOrError(Context context, Connection conn, String... queries) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            for (String query : queries) {
+                stmt.executeQuery(query);
+            }
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
+    }
+    
+    protected boolean canExecuteQueries(Context context, Connection conn, String... queries) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            for (String query : queries) {
+                stmt.executeQuery(query);
+            }
+            return true;
+        }
+        catch (SQLException e) {
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
+    }
+    
+    protected boolean centralDatabaseExists(Connection conn, String centralDatabaseName) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            stmt.execute("USE " + centralDatabaseName);
+            return true;
+        }
+        catch (SQLException e) {
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
+    }
+    
+    protected boolean runScriptsForCrop(InstallerContext context, Connection conn, Crop crop) {
+        String cropName = crop.getCropName();
         
         Object[] cropTitleParam = new Object[]{ context.getMessage(cropName) };
+        
+        // check if the central database is already installed
+        boolean databaseExists = false;
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.execute("USE ibdb_" + cropName + "_central");
+            databaseExists = true;
+        }
+        catch (SQLException e1) {
+            databaseExists = false;
+        }
+        
+        if (databaseExists) {
+            String cropTitle = context.getMessage(cropName);
+            String message = context.getMessage("confirm_central_database_update", new Object[] { cropTitle });
+            String[] options = new String[]{context.getMessage("yes"), context.getMessage("no")};
+            try {
+                int option = Util.showOptionDialog(message, options, JOptionPane.YES_NO_OPTION);
+                if (option != 0) {
+                    return true;
+                }
+            }
+            catch (UserCanceledException e) {
+                return true;
+            }
+        }
         
         // create the database and user
         try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate("DROP DATABASE IF EXISTS ibdb_" + cropName + "_central");
-            stmt.executeUpdate("CREATE DATABASE ibdb_" + cropName + "_central");
-            stmt.executeUpdate("GRANT ALL ON ibdb_" + cropName + "_central.* TO 'central'@'localhost' IDENTIFIED BY 'central'");
+            String databaseName = "ibdb_" + cropName + "_central";
+            String userName = "central";
+            String password = "central";
+            
+            stmt.executeUpdate("DROP DATABASE IF EXISTS " + databaseName);
+            stmt.executeUpdate("CREATE DATABASE " + databaseName);
+            stmt.executeUpdate("GRANT ALL ON " + databaseName + ".* TO '" + userName + "'@'localhost' IDENTIFIED BY '" + password + "'");
             stmt.executeUpdate("FLUSH PRIVILEGES");
-            stmt.execute("USE ibdb_" + cropName + "_central");
+            stmt.execute("USE " + databaseName);
         }
         catch (SQLException e1) {
             Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
             return false;
         }
         
+        File centralDatabaseDir = new File(context.getInstallationDirectory(), DATABASE_CENTRAL_DATA_PATH);
+        
+        File centralCropDir = new File(centralDatabaseDir, cropName);
+        File centralCropCommonDir = new File(context.getInstallationDirectory(), DATABASE_CENTRAL_COMMON_DATA_PATH);
+        if (!runScriptsOnDirectory(context, conn, cropTitleParam, centralCropCommonDir)) {
+            return false;
+        }
+        if (!runScriptsOnDirectory(context, conn, cropTitleParam, centralCropDir)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    protected boolean runScriptsOnDirectory(Context context, Connection conn, Object[] cropTitleParam, File cropDir) {
         // show installation error if the crop database directory does not exist
         if (!cropDir.exists()) {
             String errorMessage = context.getMessage("cannot_find_database_files", cropTitleParam);
@@ -212,12 +355,6 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
                 runner.runScript(br);
             }
             catch (IOException e1) {
-                e1.printStackTrace();
-                
-                Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
-                return false;
-            }
-            catch (SQLException e1) {
                 e1.printStackTrace();
                 
                 Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
