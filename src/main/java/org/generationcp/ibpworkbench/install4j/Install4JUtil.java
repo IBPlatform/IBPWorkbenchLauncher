@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import com.install4j.api.Util;
 import com.install4j.api.context.Context;
+import com.install4j.api.context.InstallationComponentSetup;
 import com.install4j.api.context.InstallerContext;
 
 public abstract class Install4JUtil {
@@ -443,6 +445,115 @@ public abstract class Install4JUtil {
                 }
                 catch (IOException e) {
                 }
+            }
+        }
+    }
+    
+    public static boolean isComponentSelected(InstallerContext context, Crop crop) {
+        InstallationComponentSetup component = context.getInstallationComponentById(crop.getCropName());
+        return component == null ? false : component.isSelected();
+    }
+    
+    public static boolean executeUpdate(Context context, Connection conn, boolean showError, String... queries) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            for (String query : queries) {
+                stmt.executeUpdate(query);
+            }
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            if (showError) {
+                Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+            }
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
+    }
+    
+    public static boolean executeQuery(Context context, Connection conn, boolean showError, String... queries) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            for (String query : queries) {
+                stmt.executeQuery(query);
+            }
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            if (showError) {
+                Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+            }
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
+    }
+    
+    public static boolean canExecuteQueries(Context context, Connection conn, String... queries) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            for (String query : queries) {
+                stmt.executeQuery(query);
+            }
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
+            }
+        }
+    }
+    
+    public static boolean useDatabase(Connection conn, String databaseName) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            stmt.execute("USE " + databaseName);
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            }
+            catch (SQLException e2) {
+                // intentionally empty
             }
         }
     }

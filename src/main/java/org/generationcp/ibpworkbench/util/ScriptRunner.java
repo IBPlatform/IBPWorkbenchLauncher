@@ -220,7 +220,7 @@ public class ScriptRunner {
     return !fullLineDelimiter && trimmedLine.contains(delimiter) || fullLineDelimiter && trimmedLine.equals(delimiter);
   }
 
-  private void executeStatement(String command) throws SQLException, UnsupportedEncodingException {
+  protected void executeStatement(String command) throws SQLException, UnsupportedEncodingException {
     boolean hasResults = false;
     Statement statement = connection.createStatement();
     statement.setEscapeProcessing(escapeProcessing);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.2" transformSequenceNumber="4">
   <directoryPresets config="infrastructure" />
-  <application name="IB Central Databases" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="ibp_central_databases_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="ib_central_databases" publisher="" publisherWeb="" version="1.1.3" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+  <application name="${compiler:gcp.installer.name.full}" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="ibp_central_databases_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="${compiler:gcp.installer.name.short}" publisher="" publisherWeb="" version="1.1.3.1" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="./messages.properties" />
       <additionalLanguages>
@@ -28,6 +28,8 @@
       <variable name="gcp.jdbc.central.password" value="central" description="" category="" />
       <variable name="gcp.jdbc.local.user" value="local" description="" category="" />
       <variable name="gcp.jdbc.local.password" value="local" description="" category="" />
+      <variable name="gcp.installer.name.full" value="IB Central Database" description="" category="" />
+      <variable name="gcp.installer.name.short" value="ib_central_database" description="" category="" />
     </variables>
     <mergedProjects />
     <codeSigning macEnabled="false" macPkcs12File="" windowsEnabled="false" windowsKeySource="pvkAndSpc" windowsPvkFile="" windowsSpcFile="" windowsPkcs12File="" />
@@ -79,6 +81,8 @@
         <include all="false">
           <entry location="database/central/cassava" fileType="regular" />
           <entry location="database/central/common" fileType="regular" />
+          <entry location="database/central_light/cassava" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
           <entry location="database/local/cassava" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
         </include>
@@ -91,6 +95,8 @@
         <include all="false">
           <entry location="database/central/chickpea" fileType="regular" />
           <entry location="database/central/common" fileType="regular" />
+          <entry location="database/central_light/chickpea" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
           <entry location="database/local/chickpea" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
         </include>
@@ -103,6 +109,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/cowpea" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/cowpea" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/cowpea" fileType="regular" />
         </include>
@@ -115,6 +123,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/groundnut" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/groundnut" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/groundnut" fileType="regular" />
         </include>
@@ -125,6 +135,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/maize" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/maize" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/maize" fileType="regular" />
         </include>
@@ -137,6 +149,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/phaseleous" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/phaseleous" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/phaseleous" fileType="regular" />
         </include>
@@ -147,6 +161,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/rice" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/rice" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/rice" fileType="regular" />
         </include>
@@ -159,6 +175,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/sorghum" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/sorghum" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/sorghum" fileType="regular" />
         </include>
@@ -169,6 +187,8 @@
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
           <entry location="database/central/wheat" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/wheat" fileType="regular" />
           <entry location="database/local/common" fileType="regular" />
           <entry location="database/local/wheat" fileType="regular" />
         </include>
@@ -473,6 +493,14 @@
                 </serializedBean>
                 <condition />
               </action>
+              <action name="" id="1253" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.InitializeLightCentralDatabaseAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.InitializeLightCentralDatabaseAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
               <action name="" id="1008" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.InitializeLocalDatabaseAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
@@ -711,7 +739,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Cassava Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -733,7 +763,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Chickpea Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -755,7 +787,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Cowpea Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -777,7 +811,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Groundnut Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -799,7 +835,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Maize Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -821,7 +859,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Phaseleous Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -843,7 +883,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Rice Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -865,7 +907,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Sorghum Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -887,7 +931,9 @@
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
-      <variables />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Wheat Central Database" description="" category="" />
+      </variables>
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
@@ -907,6 +953,7 @@
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="963" />
+    <mediaSet refId="1245" />
     <mediaSet refId="970" />
     <mediaSet refId="1234" />
     <mediaSet refId="1238" />

@@ -77,11 +77,7 @@ public class Launcher {
     
     private Display display;
     private Shell shell;
-//    private Tray tray;
-//    
-//    private Menu menu;
-//    private MenuItem launchWorkbenchItem;
-//    private MenuItem exitItem;
+
     private TrayItem trayItem;
     private Process mysqlProcess;
     private TomcatServer tomcatServer;

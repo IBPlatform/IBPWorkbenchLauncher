@@ -9,18 +9,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.swing.JOptionPane;
 
 import org.generationcp.ibpworkbench.install4j.Crop;
 import org.generationcp.ibpworkbench.install4j.Install4JUtil;
-import org.generationcp.ibpworkbench.util.ScriptRunner;
+import org.generationcp.ibpworkbench.util.Install4JScriptRunner;
 
 import com.install4j.api.Util;
 import com.install4j.api.actions.AbstractInstallAction;
 import com.install4j.api.context.Context;
-import com.install4j.api.context.InstallationComponentSetup;
 import com.install4j.api.context.InstallerContext;
 import com.install4j.api.context.UserCanceledException;
 
@@ -30,12 +28,9 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
     private final static String DATABASE_LOCAL_DATA_PATH        = "database/local";
     private final static String DATABASE_LOCAL_COMMON_DATA_PATH = "database/local/common";
 
-    protected boolean isComponentSelected(InstallerContext context, Crop crop) {
-        InstallationComponentSetup component = context.getInstallationComponentById(crop.getCropName());
-        return component == null ? false : component.isSelected();
-    }
-    
     public boolean install(InstallerContext context) throws UserCanceledException {
+        context.getProgressInterface().setIndeterminateProgress(true);
+        
         // connect to MySQL
         Connection connection = Install4JUtil.connectToMySQL(context);
         if (connection == null) {
@@ -45,7 +40,7 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
         try {
             // run scripts
             for (Crop crop : Crop.values()) {
-                if (isComponentSelected(context, crop)) {
+                if (Install4JUtil.isComponentSelected(context, crop)) {
                     boolean success = runScriptsForCrop(context, connection, crop);
                     if (!success) {
                         return false;
@@ -57,6 +52,11 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
                     }
                 }
             }
+            
+            connection.commit();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
         }
         finally {
             try {
@@ -65,6 +65,9 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
             catch (SQLException e) {
             }
         }
+        
+        context.getProgressInterface().setIndeterminateProgress(false);
+        context.getProgressInterface().setPercentCompleted(100);
         
         return true;
     }
@@ -75,16 +78,7 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
         Object[] cropTitleParam = new Object[]{ context.getMessage(cropName) };
         
         // check if the central database is already installed
-        boolean databaseExists = false;
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.execute("USE ibdbv1_" + cropName + "_local");
-            databaseExists = true;
-        }
-        catch (SQLException e1) {
-            databaseExists = false;
-        }
-        
+        boolean databaseExists = Install4JUtil.useDatabase(conn, "ibdbv1_" + cropName + "_local");
         if (databaseExists) {
             String cropTitle = context.getMessage(cropName);
             String message = context.getMessage("confirm_local_database_update", new Object[] { cropTitle });
@@ -101,19 +95,20 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
         }
         
         // create the database and user
-        try {
-            Statement stmt = conn.createStatement();
-            String databaseName = "ibdbv1_" + cropName + "_local";
-            String userName = "local";
-            String password = "local";
-            
-            stmt.executeUpdate("DROP DATABASE IF EXISTS " + databaseName);
-            stmt.executeUpdate("CREATE DATABASE " + databaseName);
-            stmt.executeUpdate("GRANT ALL ON " + databaseName + ".* TO '" + userName + "'@'localhost' IDENTIFIED BY '" + password + "'");
-            stmt.executeUpdate("FLUSH PRIVILEGES");
-            stmt.execute("USE " + databaseName);
+        String databaseName = "ibdbv1_" + cropName + "_local";
+        String userName = "local";
+        String password = "local";
+        String[] queries = new String[] {
+                                         "DROP DATABASE IF EXISTS " + databaseName
+                                         ,"CREATE DATABASE " + databaseName
+                                         ,"GRANT ALL ON " + databaseName + ".* TO '" + userName + "'@'localhost' IDENTIFIED BY '" + password + "'"
+                                         ,"FLUSH PRIVILEGES"
+        };
+        if (!Install4JUtil.executeUpdate(context, conn, true, queries)) {
+            return false;
         }
-        catch (SQLException e1) {
+        
+        if (!Install4JUtil.useDatabase(conn, databaseName)) {
             Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
             return false;
         }
@@ -156,7 +151,7 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
             try {
                 br = new BufferedReader(new InputStreamReader(new FileInputStream(sqlFile)));
                 
-                ScriptRunner runner = new ScriptRunner(conn, false, true);
+                Install4JScriptRunner runner = new Install4JScriptRunner(context, conn, false, true);
                 runner.runScript(br);
             }
             catch (IOException e1) {

@@ -7,9 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.swing.JOptionPane;
 
@@ -23,12 +21,12 @@ import com.install4j.api.context.Context;
 import com.install4j.api.context.InstallerContext;
 import com.install4j.api.context.UserCanceledException;
 
-public class InitializeCentralDatabaseAction extends AbstractInstallAction {
+public class InitializeLightCentralDatabaseAction extends AbstractInstallAction {
     private static final long serialVersionUID = 1L;
     
     private final static String DATABASE_DATA_PATH = "database";
-    private final static String DATABASE_CENTRAL_DATA_PATH = "database/central";
-    private final static String DATABASE_CENTRAL_COMMON_DATA_PATH = "database/central/common";
+    private final static String DATABASE_CENTRAL_DATA_PATH = "database/central_light";
+    private final static String DATABASE_CENTRAL_COMMON_DATA_PATH = "database/central_light/common";
     
     public boolean install(InstallerContext context) throws UserCanceledException {
         context.getProgressInterface().setIndeterminateProgress(true);
@@ -48,11 +46,6 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
                         return false;
                     }
                 }
-            }
-            
-            // register installed crop types
-            if (!registerCrops(context, connection)) {
-                return false;
             }
             
             connection.commit();
@@ -90,19 +83,10 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
         Object[] cropTitleParam = new Object[]{ context.getMessage(cropName) };
         
         // check if the central database is already installed
-        boolean databaseExists = false;
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.execute("USE ibdb_" + cropName + "_central");
-            databaseExists = true;
-        }
-        catch (SQLException e1) {
-            databaseExists = false;
-        }
-        
+        boolean databaseExists = Install4JUtil.useDatabase(conn, "ibdb_" + cropName + "_central");
         if (databaseExists) {
             String cropTitle = context.getMessage(cropName);
-            String message = context.getMessage("confirm_central_database_update", new Object[] { cropTitle });
+            String message = context.getMessage("confirm_light_central_database_update", new Object[] { cropTitle });
             String[] options = new String[]{context.getMessage("yes"), context.getMessage("no")};
             try {
                 int option = Util.showOptionDialog(message, options, JOptionPane.YES_NO_OPTION);
@@ -116,7 +100,7 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
         }
         
         // create the database and user
-        String databaseName = "ibdb_" + cropName + "_central";
+        String databaseName = "ibdbv1_" + cropName + "_central_light";
         String userName = "central";
         String password = "central";
         String[] queries = new String[] {
@@ -189,50 +173,6 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
                     catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Register selected crops into workbench.workbench_crop table.
-     * We SHOULD AVOID introducing any side effect into any existing workbench_crop table.
-     * 
-     * @param context
-     * @param conn
-     * @return
-     */
-    protected boolean registerCrops(InstallerContext context, Connection conn) {
-        // we do our best effort to recreate the workbench_crop table
-        for (Crop crop : Crop.values()) {
-            if (!Install4JUtil.useDatabase(conn, crop.getCentralDatabaseName())) {
-                continue;
-            }
-            
-            String insertCropSql = "REPLACE INTO workbench.workbench_crop (crop_name, central_db_name) VALUES (?, ?)";
-            context.getProgressInterface().setDetailMessage(insertCropSql);
-            
-            PreparedStatement pstmt = null;
-            try {
-                pstmt = conn.prepareStatement(insertCropSql);
-
-                pstmt.setString(1, crop.getCropName());
-                pstmt.setString(2, crop.getCentralDatabaseName());
-                pstmt.executeUpdate();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-            finally {
-                try {
-                    if (pstmt != null) {
-                        pstmt.close();
-                    }
-                }
-                catch (SQLException e2) {
-                    // intentionally empty
                 }
             }
         }

@@ -9,10 +9,10 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
+import org.generationcp.ibpworkbench.install4j.Crop;
 import org.generationcp.ibpworkbench.install4j.Install4JUtil;
-import org.generationcp.ibpworkbench.util.ScriptRunner;
+import org.generationcp.ibpworkbench.util.Install4JScriptRunner;
 
 import com.install4j.api.Util;
 import com.install4j.api.actions.AbstractInstallAction;
@@ -25,6 +25,8 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
     private final static String DATABASE_WORKBENCH_DATA_PATH = "database/workbench";
 
     public boolean install(InstallerContext context) throws UserCanceledException {
+        context.getProgressInterface().setIndeterminateProgress(true);
+        
         // connect to MySQL
         Connection connection = Install4JUtil.connectToMySQL(context);
         if (connection == null) {
@@ -33,7 +35,19 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         
         // run workbench scripts
         try {
-            runWorkbenchScripts(context, connection);
+            if (!runWorkbenchScripts(context, connection)) {
+                return false;
+            }
+            
+            // register installed crop types
+            if (!registerCrops(context, connection)) {
+                return false;
+            }
+            
+            connection.commit();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
         }
         finally {
             try {
@@ -43,6 +57,9 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
             }
         }
         
+        context.getProgressInterface().setIndeterminateProgress(false);
+        context.getProgressInterface().setPercentCompleted(100);
+        
         return true;
     }
     
@@ -51,41 +68,19 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         Object[] workbenchTitleParam = new Object[]{ context.getMessage("workbench") };
         
         // check if the central database is already installed
-        boolean databaseExists = false;
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeQuery("SELECT * FROM workbench.workbench_project");
-            databaseExists = true;
-        }
-        catch (SQLException e1) {
-            databaseExists = false;
-        }
-        
+        boolean databaseExists = Install4JUtil.executeQuery(context, conn, false, "SELECT * FROM workbench.workbench_project");
         if (databaseExists) {
             return true;
         }
         
         // create the database and user
-        Statement stmt = null;
-        try {
-            stmt = conn.createStatement();
-            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS workbench");
-            stmt.executeUpdate("GRANT ALL ON workbench.* TO 'workbench'@'localhost' IDENTIFIED BY 'workbench'");
-            stmt.executeUpdate("USE workbench");
-        }
-        catch (SQLException e1) {
-            Util.showErrorMessage(context.getMessage("cannot_initialize_database"));
+        String[] queries = new String[] {
+                                         "CREATE DATABASE IF NOT EXISTS workbench"
+                                        ,"GRANT ALL ON workbench.* TO 'workbench'@'localhost' IDENTIFIED BY 'workbench'"
+                                        ,"USE workbench"
+        };
+        if (!Install4JUtil.executeUpdate(context, conn, true, queries)) {
             return false;
-        }
-        finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                }
-                catch (SQLException e) {
-                    // intentionally empty
-                }
-            }
         }
         
         // show installation error if the crop database directory does not exist
@@ -111,7 +106,7 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
             try {
                 br = new BufferedReader(new InputStreamReader(new FileInputStream(sqlFile)));
                 
-                ScriptRunner runner = new ScriptRunner(conn, false, true);
+                Install4JScriptRunner runner = new Install4JScriptRunner(context, conn, false, true);
                 runner.runScript(br);
             }
             catch (IOException e1) {
@@ -135,7 +130,7 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         // set the installation directory
         PreparedStatement pstmt = null;
         try {
-            pstmt = conn.prepareStatement("INSERT INTO workbench_setting(installation_directory) VALUES (?);");
+            pstmt = conn.prepareStatement("INSERT INTO workbench.workbench_setting(installation_directory) VALUES (?);");
             pstmt.setString(1, context.getInstallationDirectory().getAbsolutePath());
             pstmt.executeUpdate();
         }
@@ -144,11 +139,86 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
             return false;
         }
         finally {
-            if (stmt != null) {
+            if (pstmt != null) {
                 try {
-                    stmt.close();
+                    pstmt.close();
                 }
                 catch (SQLException e) {
+                    // intentionally empty
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Register selected crops into workbench.workbench_crop table.
+     * We SHOULD AVOID introducing any side effect into any existing workbench_crop table.
+     * 
+     * @param context
+     * @param conn
+     * @return
+     */
+    protected boolean registerCrops(InstallerContext context, Connection conn) {
+        if (!Install4JUtil.executeUpdate(context, conn, true, "CREATE DATABASE IF NOT EXISTS workbench")) {
+            return false;
+        }
+        
+        // create the workbench_crop table if it does not exist
+        String createWorkbenchCropIfNotExistSql = "CREATE TABLE IF NOT EXISTS workbench.workbench_crop(\n"
+                                                + "    crop_name VARCHAR(32) NOT NULL\n"
+                                                + "   ,central_db_name VARCHAR(64)\n"
+                                                + "   ,PRIMARY KEY(crop_name)\n"
+                                                + ") ENGINE=InnoDB";
+        if (!Install4JUtil.executeUpdate(context, conn, true, createWorkbenchCropIfNotExistSql)) {
+            return false;
+        }
+        
+        // check if the workbench_crop table exists in the correct format
+        String workbenchCropCheckSql = "SELECT crop_name, central_db_name FROM workbench.workbench_crop LIMIT 1";
+        boolean workbenchCropCorrect = Install4JUtil.canExecuteQueries(context, conn, workbenchCropCheckSql);
+        
+        if (!workbenchCropCorrect) {
+            // if the workbench_crop table is in an incompatible format, drop and re-create it
+            String dropWorkbenchCropSql = "DROP TABLE IF EXISTS workbench.workbench_crop";
+            String createWorkbenchCropSql = "CREATE TABLE workbench.workbench_crop(\n"
+                                          + "    crop_name VARCHAR(32) NOT NULL\n"
+                                          + "   ,central_db_name VARCHAR(64)\n"
+                                          + "   ,PRIMARY KEY(crop_name)\n"
+                                          + ") ENGINE=InnoDB";
+            if (!Install4JUtil.executeUpdate(context, conn, true, dropWorkbenchCropSql, createWorkbenchCropSql)) {
+                return false;
+            }
+        }
+        
+        // we do our best effort to recreate the workbench_crop table
+        for (Crop crop : Crop.values()) {
+            if (!Install4JUtil.useDatabase(conn, crop.getCentralDatabaseName())) {
+                continue;
+            }
+            
+            String insertCropSql = "REPLACE INTO workbench.workbench_crop (crop_name, central_db_name) VALUES (?, ?)";
+            context.getProgressInterface().setDetailMessage(insertCropSql);
+            
+            PreparedStatement pstmt = null;
+            try {
+                pstmt = conn.prepareStatement(insertCropSql);
+
+                pstmt.setString(1, crop.getCropName());
+                pstmt.setString(2, crop.getCentralDatabaseName());
+                pstmt.executeUpdate();
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+            finally {
+                try {
+                    if (pstmt != null) {
+                        pstmt.close();
+                    }
+                }
+                catch (SQLException e2) {
                     // intentionally empty
                 }
             }
