@@ -242,9 +242,7 @@ public class Launcher {
         });
     }
     
-    protected void initializeMysql() {
-        LOG.trace("Starting MySQL...");
-        
+    protected void launchMySQLProcess() {
         File workingDirPath = new File(mysqlBinDir).getAbsoluteFile();
         String mysqldPath = "mysqld.exe";
         String myIniPath =  "../my.ini";
@@ -257,6 +255,28 @@ public class Launcher {
         catch (IOException e) {
             LOG.error("IOException", e );
         }
+    }
+    
+    protected void launchMySQLService() {
+        ProcessBuilder pb = new ProcessBuilder("NET", "start", "MySQLIBWS");
+        try {
+            Process process = pb.start();
+            if (process != null) {
+                process.waitFor();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    protected void initializeMysql() {
+        LOG.trace("Starting MySQL...");
+        
+        launchMySQLService();
         
         // give Tomcat a headstart
         try {
@@ -379,9 +399,7 @@ public class Launcher {
         }
     }
     
-    protected void shutdownMysql() {
-        LOG.trace("Stopping MySQL...");
-        
+    protected void stopMySQLProcess() {
         if (mysqlProcess == null) {
             return;
         }
@@ -394,6 +412,28 @@ public class Launcher {
         catch (InterruptedException e) {
             LOG.error("Interrupted while waiting for MySQL to stop", e);
         }
+    }
+    
+    protected void stopMySQLService() {
+        ProcessBuilder pb = new ProcessBuilder("NET", "stop", "MySQLIBWS");
+        try {
+            Process process = pb.start();
+            process.waitFor();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    protected void shutdownMysql() {
+        LOG.trace("Stopping MySQL...");
+        
+        // 20121221 NOTE: We don't stop MySQL service since it maybe needed
+        // by other tools.
+        //stopMySQLService();
     }
     
     protected void shutdownWebApps() {
