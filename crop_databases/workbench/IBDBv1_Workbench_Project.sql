@@ -326,14 +326,14 @@ INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id)
 -- WEB tools should use the release port.
 -- NATIVE tools should use a path relative to Tomcat's bin folder.
 INSERT INTO workbench_tool (name, title, version, tool_type, path) VALUES
- ('germplasm_browser', 'Browse Germplasm Information', '1.1.2.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
-,('study_browser', 'Browse Studies and Datasets', '1.1.2.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
-,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2.2', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
+ ('germplasm_browser', 'Browse Germplasm Information', '1.1.2.3', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
+,('study_browser', 'Browse Studies and Datasets', '1.1.2.3', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2.3', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
 ,('gdms', 'GDMS', '1.0', 'WEB_WITH_LOGIN', 'http://localhost:18080/GDMS/login.do')
 ,('fieldbook', 'FieldBook', '2.0.0', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
 ,('optimas', 'OptiMAS', '1.3', 'NATIVE', 'tools/optimas/optimas.exe')
 ,('breeding_manager', 'Breeding Manager', '2.0.0', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
-,('breeding_view', 'Breeding View', '1.1.0.8820', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
+,('breeding_view', 'Breeding View', '1.1.0.8904', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
 ;
 
 
