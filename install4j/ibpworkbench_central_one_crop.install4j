@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.2" transformSequenceNumber="4">
   <directoryPresets config="infrastructure" />
-  <application name="${compiler:gcp.installer.name.full}" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="ibp_central_databases_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="${compiler:gcp.installer.name.short}" publisher="" publisherWeb="" version="1.1.3.1" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+  <application name="${compiler:gcp.installer.name.full}" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="ibp_central_databases_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="${compiler:gcp.installer.name.short}" publisher="" publisherWeb="" version="1.1.3.2" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="./messages.properties" />
       <additionalLanguages>
@@ -623,6 +623,36 @@
             <actions />
             <formComponents />
           </screen>
+          <screen name="" id="1302" customizedId="" beanClass="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" />
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents>
+              <formComponent name="Add a desktop link" id="1303" customizedId="" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                      <void property="checkboxText">
+                        <string>${i18n:complete_uninstall}</string>
+                      </void>
+                      <void property="variableName">
+                        <string>completeUninstall</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+                <visibilityScript />
+              </formComponent>
+            </formComponents>
+          </screen>
           <screen name="" id="16" customizedId="" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
@@ -671,6 +701,60 @@
                 </serializedBean>
                 <condition />
               </action>
+              <group name="CompleteUninstall" id="1304" customizedId="" beanClass="com.install4j.runtime.beans.groups.ActionGroup" enabled="true" commentSet="false" comment="" actionElevationType="inherit">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.groups.ActionGroup">
+                      <void property="conditionExpression">
+                        <object class="com.install4j.api.beans.ScriptProperty">
+                          <void property="value">
+                            <string>context.getBooleanVariable("completeUninstall")</string>
+                          </void>
+                        </object>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <beans>
+                  <action name="" id="1305" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.StopMySQLServiceAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                    <serializedBean>
+                      <java class="java.beans.XMLDecoder">
+                        <object class="org.generationcp.ibpworkbench.install4j.action.StopMySQLServiceAction" />
+                      </java>
+                    </serializedBean>
+                    <condition />
+                  </action>
+                  <action name="" id="1306" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.UninstallMySQLServiceAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                    <serializedBean>
+                      <java class="java.beans.XMLDecoder">
+                        <object class="org.generationcp.ibpworkbench.install4j.action.UninstallMySQLServiceAction" />
+                      </java>
+                    </serializedBean>
+                    <condition />
+                  </action>
+                  <action name="" id="1307" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                    <serializedBean>
+                      <java class="java.beans.XMLDecoder">
+                        <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
+                          <void property="files">
+                            <array class="java.io.File" length="1">
+                              <void index="0">
+                                <object class="java.io.File">
+                                  <string>.</string>
+                                </object>
+                              </void>
+                            </array>
+                          </void>
+                          <void property="recursive">
+                            <boolean>true</boolean>
+                          </void>
+                        </object>
+                      </java>
+                    </serializedBean>
+                    <condition />
+                  </action>
+                </beans>
+              </group>
             </actions>
             <formComponents />
           </screen>
@@ -953,14 +1037,6 @@
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="963" />
-    <mediaSet refId="1245" />
-    <mediaSet refId="970" />
-    <mediaSet refId="1234" />
-    <mediaSet refId="1238" />
-    <mediaSet refId="1242" />
-    <mediaSet refId="1250" />
-    <mediaSet refId="1248" />
-    <mediaSet refId="1252" />
   </buildIds>
   <buildOptions verbose="false" faster="true" disableSigning="true" debug="false" />
 </install4j>
