@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.swing.JOptionPane;
 
@@ -86,20 +85,12 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
     
     protected boolean runScriptsForCrop(InstallerContext context, Connection conn, Crop crop) {
         String cropName = crop.getCropName();
+        String databaseName = "ibdb_" + cropName + "_central";
         
         Object[] cropTitleParam = new Object[]{ context.getMessage(cropName) };
         
         // check if the central database is already installed
-        boolean databaseExists = false;
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.execute("USE ibdb_" + cropName + "_central");
-            databaseExists = true;
-        }
-        catch (SQLException e1) {
-            databaseExists = false;
-        }
-        
+        boolean databaseExists = Install4JUtil.useDatabase(conn, databaseName);
         if (databaseExists) {
             String cropTitle = context.getMessage(cropName);
             String message = context.getMessage("confirm_central_database_update", new Object[] { cropTitle });
@@ -116,7 +107,6 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
         }
         
         // create the database and user
-        String databaseName = "ibdb_" + cropName + "_central";
         String userName = "central";
         String password = "central";
         String[] queries = new String[] {

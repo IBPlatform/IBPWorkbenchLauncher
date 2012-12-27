@@ -79,11 +79,12 @@ public class InitializeLightCentralDatabaseAction extends AbstractInstallAction 
     
     protected boolean runScriptsForCrop(InstallerContext context, Connection conn, Crop crop) {
         String cropName = crop.getCropName();
+        String databaseName = "ibdbv1_" + cropName + "_central_light";
         
         Object[] cropTitleParam = new Object[]{ context.getMessage(cropName) };
         
         // check if the central database is already installed
-        boolean databaseExists = Install4JUtil.useDatabase(conn, "ibdb_" + cropName + "_central");
+        boolean databaseExists = Install4JUtil.useDatabase(conn, databaseName);
         if (databaseExists) {
             String cropTitle = context.getMessage(cropName);
             String message = context.getMessage("confirm_light_central_database_update", new Object[] { cropTitle });
@@ -100,7 +101,6 @@ public class InitializeLightCentralDatabaseAction extends AbstractInstallAction 
         }
         
         // create the database and user
-        String databaseName = "ibdbv1_" + cropName + "_central_light";
         String userName = "central";
         String password = "central";
         String[] queries = new String[] {

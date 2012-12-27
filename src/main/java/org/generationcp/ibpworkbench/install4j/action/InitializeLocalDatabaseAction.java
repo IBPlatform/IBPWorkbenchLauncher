@@ -74,11 +74,12 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
     
     protected boolean runScriptsForCrop(InstallerContext context, Connection conn, Crop crop) {
         String cropName = crop.getCropName();
+        String databaseName = "ibdbv1_" + cropName + "_local";
         
         Object[] cropTitleParam = new Object[]{ context.getMessage(cropName) };
         
         // check if the central database is already installed
-        boolean databaseExists = Install4JUtil.useDatabase(conn, "ibdbv1_" + cropName + "_local");
+        boolean databaseExists = Install4JUtil.useDatabase(conn, databaseName);
         if (databaseExists) {
             String cropTitle = context.getMessage(cropName);
             String message = context.getMessage("confirm_local_database_update", new Object[] { cropTitle });
@@ -95,7 +96,6 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
         }
         
         // create the database and user
-        String databaseName = "ibdbv1_" + cropName + "_local";
         String userName = "local";
         String password = "local";
         String[] queries = new String[] {
