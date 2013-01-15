@@ -57,7 +57,6 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
             connection.commit();
         }
         catch (SQLException e) {
-            e.printStackTrace();
         }
         finally {
             try {

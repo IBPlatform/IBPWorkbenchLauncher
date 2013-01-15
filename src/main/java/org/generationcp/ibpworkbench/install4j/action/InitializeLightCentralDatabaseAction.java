@@ -51,7 +51,6 @@ public class InitializeLightCentralDatabaseAction extends AbstractInstallAction 
             connection.commit();
         }
         catch (SQLException e) {
-            e.printStackTrace();
         }
         finally {
             try {

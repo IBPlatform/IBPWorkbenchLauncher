@@ -543,7 +543,6 @@ public abstract class Install4JUtil {
             return true;
         }
         catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
         finally {

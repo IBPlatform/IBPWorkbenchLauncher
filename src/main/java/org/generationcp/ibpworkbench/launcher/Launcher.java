@@ -509,7 +509,7 @@ public class Launcher {
         final Menu menu = new Menu (shell, SWT.POP_UP);
         
         MenuItem launchWorkbenchItem = new MenuItem(menu, SWT.PUSH);
-        launchWorkbenchItem.setText("Launch IBPWorkbench");
+        launchWorkbenchItem.setText("Launch IBWorkbench");
         
         MenuItem exitItem = new MenuItem(menu, SWT.PUSH);
         exitItem.setText("Exit");

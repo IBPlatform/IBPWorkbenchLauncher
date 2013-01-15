@@ -13,7 +13,7 @@ public enum Crop {
     ,MAIZE("maize", "ibdb_maize_central")
     ,RICE("rice", "ibdb_rice_central")
     ,SORGHUM("sorghum", "ibdb_sorghum_central")
-    ,PHASELEOUS("phaseleous", "ibdb_phaseleous_central")
+    ,PHASEOLUS("phaseolus", "ibdb_phaseolus_central")
     ,WHEAT("wheat", "ibdb_wheat_central")
     ;
     
