@@ -183,15 +183,25 @@
         </jar>
     </target>
     
-    <target name="launch4j" depends="build, dist-mkdir" description="Create an executable launcher">
+    <target name="copy-jars" depends="build">
         <copy todir="${dist.dir}">
             <fileset dir="${jar.dir}"/>
+        </copy>
+    </target>
+    
+    <target name="copy-launch4j" depends="build">
+        <copy todir="${dist.dir}">
             <fileset dir="${launch4j.dir}"/>
         </copy>
+    </target>
+    
+    <target name="copy-images" depends="build">
         <copy todir="${dist.dir}/images">
             <fileset dir="${images.dir}"/>
         </copy>
-        
+    </target>
+    
+    <target name="launch4j" depends="build, dist-mkdir, copy-jars, copy-images" description="Create an executable launcher">
         <exec dir="${dist.dir}" executable="${launch4j.path}">
             <arg value="launch4j.xml"/>
         </exec>
@@ -245,6 +255,11 @@
         <mkdir dir="${dist.dir}/crop_databases/central"/>
         <copy todir="${dist.dir}/crop_databases/central" overwrite="yes" verbose="yes">
             <fileset dir="${crop.database.dir}/central">
+                <exclude name="readme.txt"/>
+            </fileset>
+        </copy>
+        <copy todir="${dist.dir}/crop_databases/central_light" overwrite="yes" verbose="yes">
+            <fileset dir="${crop.database.dir}/central_light">
                 <exclude name="readme.txt"/>
             </fileset>
         </copy>
@@ -423,9 +438,8 @@
         <delete dir="${dist.dir}"/>
     </target>
 
-    <target name="dist" depends="dist-clean, dist-mkdir, launch4j, dist-create" description="">
+    <target name="dist" depends="dist-clean, dist-mkdir, copy-jars, copy-images, dist-create" description="">
         <echo>Distribution directory created.</echo>
-        <echo>You can run the 'nsis' target now if you want to create the installer</echo>
     </target>
     
     <target name="nsis" description="Copy NSIS files on the distribution directory in preparation for creating the installer">
