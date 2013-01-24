@@ -127,11 +127,13 @@
           <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
         </text>
       </splashScreen>
-      <java mainClass="org.generationcp.ibpworkbench.launcher.Launcher" vmParameters="-javaagent:ibpworkbench_launcher.jar -Djava.library.path=ibpworkbench_launcher.jar" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
+      <java mainClass="org.generationcp.ibpworkbench.launcher.Launcher" vmParameters="-javaagent:ibpworkbench_launcher.jar -Djava.library.path=./ibpworkbench_launcher.jar" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
         <classPath>
           <archive location="ibpworkbench_launcher.jar" failOnError="false" />
         </classPath>
-        <nativeLibraryDirectories />
+        <nativeLibraryDirectories>
+          <directory name="." />
+        </nativeLibraryDirectories>
       </java>
       <includedFiles />
       <unextractableFiles />

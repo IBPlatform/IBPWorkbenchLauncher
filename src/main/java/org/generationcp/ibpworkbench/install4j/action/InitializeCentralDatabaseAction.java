@@ -212,7 +212,6 @@ public class InitializeCentralDatabaseAction extends AbstractInstallAction {
                 pstmt.executeUpdate();
             }
             catch (SQLException e) {
-                e.printStackTrace();
             }
             finally {
                 try {

@@ -67,7 +67,7 @@ public class InitializeWorkbenchDatabaseAction extends AbstractInstallAction {
         Object[] workbenchTitleParam = new Object[]{ context.getMessage("workbench") };
         
         // check if the central database is already installed
-        boolean databaseExists = Install4JUtil.executeQuery(context, conn, false, "SELECT * FROM workbench.workbench_project");
+        boolean databaseExists = Install4JUtil.useDatabase(conn, "workbench");
         if (databaseExists) {
             return true;
         }
