@@ -16,8 +16,9 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables>
-      <variable name="gcp.dist.dir" value="D:\dist" description="" category="" />
-      <variable name="gcp.installer.out.dir" value="D:\" description="" category="" />
+      <variable name="gcp.dist.dir" value="E:\dist" description="" category="" />
+      <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
+      <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
     </variables>
     <mergedProjects />
     <codeSigning macEnabled="false" macPkcs12File="" windowsEnabled="false" windowsKeySource="pvkAndSpc" windowsPvkFile="" windowsSpcFile="" windowsPkcs12File="" />
@@ -26,31 +27,30 @@
     <filesets />
     <roots />
     <mountPoints>
-      <mountPoint id="606" root="" location="mysql" mode="755" />
+      <mountPoint id="785" root="" location="infrastructure" mode="755" />
+      <mountPoint id="786" root="" location="infrastructure/mysql" mode="755" />
+      <mountPoint id="788" root="" location="infrastructure/tomcat" mode="755" />
       <mountPoint id="269" root="" location="database" mode="755" />
       <mountPoint id="270" root="" location="database/workbench" mode="755" />
-      <mountPoint id="203" root="" location="documentation" mode="755" />
+      <mountPoint id="787" root="" location="cws_docs" mode="755" />
       <mountPoint id="204" root="" location="images" mode="755" />
-      <mountPoint id="205" root="" location="tomcat" mode="755" />
       <mountPoint id="206" root="" location="tools" mode="755" />
       <mountPoint id="24" root="" location="" mode="755" />
     </mountPoints>
     <entries>
-      <dirEntry mountPoint="606" file="${compiler:gcp.dist.dir}/mysql" overwriteMode="4" shared="false" fileMode="644" uninstallMode="2" overrideFileMode="false" overrideOverwriteMode="true" overrideUninstallMode="true" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="786" file="${compiler:gcp.dist.dir}/infrastructure/mysql" overwriteMode="4" shared="false" fileMode="644" uninstallMode="2" overrideFileMode="false" overrideOverwriteMode="true" overrideUninstallMode="true" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="788" file="${compiler:gcp.dist.dir}/infrastructure/tomcat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="270" file="${compiler:gcp.dist.dir}/crop_databases/workbench" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <fileEntry mountPoint="269" file="../crop_databases/run_script.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="269" file="../crop_databases/stop_mysql.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <dirEntry mountPoint="203" file="${compiler:gcp.dist.dir}/documentation" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="787" file="${compiler:gcp.dist.dir}/cws_docs" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="204" file="${compiler:gcp.dist.dir}/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
-        <exclude />
-      </dirEntry>
-      <dirEntry mountPoint="205" file="${compiler:gcp.dist.dir}/tomcat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="206" file="${compiler:gcp.dist.dir}/tools" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
@@ -63,26 +63,17 @@
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/ibpworkbench_launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
     </entries>
     <components>
-      <component name="MySQL" id="686" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
-        <description />
-        <include all="false">
-          <entry location="mysql" fileType="regular" />
-          <entry location="database/run_script.bat" fileType="regular" />
-          <entry location="database/stop_mysql.bat" fileType="regular" />
-          <entry location="license.html" fileType="regular" />
-          <entry location="license_ja.html" fileType="regular" />
-          <entry location="license_zh.html" fileType="regular" />
-        </include>
-        <dependencies />
-      </component>
       <component name="${i18n:workbench} 1.1.0" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
         <description />
         <include all="false">
+          <entry location="infrastructure/mysql" fileType="regular" />
+          <entry location="infrastructure/tomcat" fileType="regular" />
           <entry location="database" fileType="regular" />
           <entry location="images" fileType="regular" />
-          <entry location="tomcat" fileType="regular" />
+          <entry location="license.html" fileType="regular" />
+          <entry location="license_ja.html" fileType="regular" />
+          <entry location="license_zh.html" fileType="regular" />
           <entry location="first_run" fileType="regular" />
-          <entry location="license.rtf" fileType="regular" />
           <entry location="ibpworkbench_launcher.jar" fileType="regular" />
           <entry location="ibpworkbench" fileType="launcher" />
         </include>
@@ -100,7 +91,7 @@
       <component name="${i18n:breeding_view} Alpha Version" id="264" customizedId="breeding_view" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="tools/BreedingView.msi" fileType="regular" />
+          <entry location="tools/breeding_view" fileType="regular" />
         </include>
         <dependencies />
       </component>
@@ -128,7 +119,7 @@
       <component name="${i18n:documentation}" id="209" customizedId="documentation" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="documentation" fileType="regular" />
+          <entry location="cws_docs" fileType="regular" />
         </include>
         <dependencies />
       </component>

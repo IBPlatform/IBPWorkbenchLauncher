@@ -500,7 +500,7 @@ public class Launcher {
         
         // create a System Tray item
         trayItem = new TrayItem (tray, SWT.NONE);
-        trayItem.setToolTipText("IBPWorkbench");
+        trayItem.setToolTipText("IBWorkbench");
         
         Image image = new Image(display, "images/systray.ico");
         trayItem.setImage(image);

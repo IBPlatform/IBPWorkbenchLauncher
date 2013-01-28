@@ -22,8 +22,8 @@ public class StopWorkbenchAction extends AbstractInstallOrUninstallAction implem
     }
     
     protected boolean stopWorkbench(Context context) {
-        // taskkill /T /F /IM ibpworkbench.exe
-        ProcessBuilder pb = new ProcessBuilder("taskkill", "/T", "/F", "/IM", "ibpworkbench.exe");
+        // taskkill /T /F /IM ibworkbench.exe
+        ProcessBuilder pb = new ProcessBuilder("taskkill", "/T", "/F", "/IM", "ibworkbench.exe");
         pb.directory(context.getInstallationDirectory());
         
         try {
