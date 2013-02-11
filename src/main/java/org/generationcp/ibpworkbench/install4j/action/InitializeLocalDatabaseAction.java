@@ -176,33 +176,35 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
     
     protected boolean createFieldbookConfigurationForCrop(Context context, Crop crop) {
         String format = "dmscentral.hibernateDialect=\r\n"
-            + "dmscentral.url=%s\r\n"
-            + "dmscentral.driverclassname=com.mysql.jdbc.Driver\r\n"
-            + "dmscentral.username=%s\r\n"
-            + "dmscentral.password=%s\r\n"
-            + "dmscentral.accessType=central\r\n"
-            + ""
-            + "gmscentral.hibernateDialect=\r\n"
-            + "gmscentral.url=%s\r\n"
-            + "gmscentral.driverclassname=com.mysql.jdbc.Driver\r\n"
-            + "gmscentral.username=%s\r\n"
-            + "gmscentral.password=%s\r\n"
-            + "gmscentral.accessType=central\r\n"
-            + "\r\n"
-            + "dmslocal.hibernateDialect=\r\n"
-            + "dmslocal.url=%s\r\n"
-            + "dmslocal.driverclassname=com.mysql.jdbc.Driver\r\n"
-            + "dmslocal.username=%s\r\n"
-            + "dmslocal.password=%s\r\n"
-            + "dmslocal.accessType=local\r\n"
-            + ""
-            + "gmslocal.hibernateDialect=\r\n"
-            + "gmslocal.url=%s\r\n"
-            + "gmslocal.driverclassname=com.mysql.jdbc.Driver\r\n"
-            + "gmslocal.username=%s\r\n"
-            + "gmslocal.password=%s\r\n"
-            + "gmslocal.accessType=local\r\n"
-            ;
+                      + "dmscentral.url=%s\r\n"
+                      + "dmscentral.driverclassname=com.mysql.jdbc.Driver\r\n"
+                      + "dmscentral.username=%s\r\n"
+                      + "dmscentral.password=%s\r\n"
+                      + "dmscentral.accessType=central\r\n"
+                      + "\r\n"
+                      + "gmscentral.hibernateDialect=\r\n"
+                      + "gmscentral.url=%s\r\n"
+                      + "gmscentral.driverclassname=com.mysql.jdbc.Driver\r\n"
+                      + "gmscentral.username=%s\r\n"
+                      + "gmscentral.password=%s\r\n"
+                      + "gmscentral.accessType=central\r\n"
+                      + "\r\n"
+                      + "dmslocal.hibernateDialect=\r\n"
+                      + "dmslocal.url=%s\r\n"
+                      + "dmslocal.driverclassname=com.mysql.jdbc.Driver\r\n"
+                      + "dmslocal.username=%s\r\n"
+                      + "dmslocal.password=%s\r\n"
+                      + "dmslocal.accessType=local\r\n"
+                      + "\r\n"
+                      + "gmslocal.hibernateDialect=\r\n"
+                      + "gmslocal.url=%s\r\n"
+                      + "gmslocal.driverclassname=com.mysql.jdbc.Driver\r\n"
+                      + "gmslocal.username=%s\r\n"
+                      + "gmslocal.password=%s\r\n"
+                      + "gmslocal.accessType=local\r\n"
+                      + "\r\n"
+                      + "ibworkflowsystem.tools.path=%s\r\n"
+                      ;
         
         String jdbcHost         = context.getCompilerVariable("gcp.jdbc.host");
         String jdbcPort         = context.getCompilerVariable("gcp.jdbc.port");
@@ -218,11 +220,14 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
         
         String centralJdbcString = String.format(jdbcFormat, jdbcHost, jdbcPort, centralDbName);
         String localJdbcString = String.format(jdbcFormat, jdbcHost, jdbcPort, localDbName);
-
+        
+        String toolsPath = new File(context.getInstallationDirectory(), "tool").getAbsolutePath();
+        
         String configuration = String.format(format, centralJdbcString, centralUser, centralPassword
                                              , centralJdbcString, centralUser, centralPassword
                                              , localJdbcString, localUser, localPassword
-                                             , localJdbcString, localUser, localPassword);
+                                             , localJdbcString, localUser, localPassword
+                                             , toolsPath);
 
         File configurationFile = new File(System.getProperty("java.io.tmpdir"), "databaseconfig.properties");
         
