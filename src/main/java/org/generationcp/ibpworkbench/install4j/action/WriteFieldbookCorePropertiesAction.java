@@ -35,7 +35,7 @@ public class WriteFieldbookCorePropertiesAction extends AbstractInstallAction{
             ;
         
         String toolsPath = new File(context.getInstallationDirectory(), "tool").getAbsolutePath();
-        toolsPath = toolsPath.replaceAll("\\", "\\\\");
+        toolsPath = toolsPath.replaceAll("\\\\", "\\\\\\\\");
         
         String crossesDir = toolsPath + CROSSES_DIR;
         String germplasmListDir = toolsPath + GERMPLASM_LIST_DIR;
