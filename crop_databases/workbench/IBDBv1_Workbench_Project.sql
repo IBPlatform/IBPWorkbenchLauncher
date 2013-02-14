@@ -16,11 +16,21 @@ workbench_project_workflow_step
 -- workbench crops
 --
 
+DROP TABLE IF EXISTS workbench_crop;
 CREATE TABLE IF NOT EXISTS workbench_crop(
      crop_name VARCHAR(32) NOT NULL
     ,central_db_name VARCHAR(64)
     ,PRIMARY KEY(crop_name)
 ) ENGINE=InnoDB;
+
+-- initial values for crops. REPLEACE WITH YOUR CENTRAL DB NAMES
+INSERT INTO workbench_crop(crop_name, central_db_name) VALUES ('Cassava', 'ibdb_cassava_central');
+INSERT INTO workbench_crop(crop_name, central_db_name) VALUES ('Chickpea', 'ibdb_chickpea_central');
+INSERT INTO workbench_crop(crop_name, central_db_name) VALUES ('Cowpea', 'ibdb_cowpea_central');
+INSERT INTO workbench_crop(crop_name, central_db_name) VALUES ('Maize', 'ibdb_maize_central');
+INSERT INTO workbench_crop(crop_name, central_db_name) VALUES ('Rice', 'ibdb_rice_central');
+INSERT INTO workbench_crop(crop_name, central_db_name) VALUES ('Wheat', 'ibdb_wheat_central');
+
 
 -- 
 --  A template of a Workflow.
@@ -251,6 +261,7 @@ CREATE TABLE workbench_project (
     ,PRIMARY KEY(project_id)
     ,CONSTRAINT fk_project_1 FOREIGN KEY(template_id) REFERENCES workbench_workflow_template(template_id) ON UPDATE CASCADE
     ,CONSTRAINT fk_project_2 FOREIGN KEY(crop_type) REFERENCES workbench_crop(crop_name) ON UPDATE CASCADE
+    ,CONSTRAINT uk_project_name UNIQUE(project_name)
 )
 ENGINE=InnoDB;
 
@@ -326,13 +337,13 @@ INSERT INTO workbench_workflow_template_step (template_id, step_number, step_id)
 -- WEB tools should use the release port.
 -- NATIVE tools should use a path relative to Tomcat's bin folder.
 INSERT INTO workbench_tool (name, title, version, tool_type, path) VALUES
- ('germplasm_browser', 'Browse Germplasm Information', '1.1.2.4', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
-,('study_browser', 'Browse Studies and Datasets', '1.1.2.4', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
-,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2.4', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
+ ('germplasm_browser', 'Browse Germplasm Information', '1.1.2.5', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasm/')
+,('study_browser', 'Browse Studies and Datasets', '1.1.2.5', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/study/')
+,('germplasm_list_browser', 'Browse Germplasm Lists', '1.1.2.5', 'WEB', 'http://localhost:18080/GermplasmStudyBrowser/main/germplasmlist/')
 ,('gdms', 'GDMS', '1.0', 'WEB_WITH_LOGIN', 'http://localhost:18080/GDMS/login.do')
-,('fieldbook', 'FieldBook', '3.0.0 Beta 35', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
-,('optimas', 'OptiMAS', '1.3', 'NATIVE', 'tools/optimas/optimas.exe')
-,('breeding_manager', 'Breeding Manager', '3.0.0 Beta 35', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
+,('fieldbook', 'FieldBook', '3.0.0 Beta 36', 'NATIVE', 'tools/fieldbook/IBFb/bin/ibfb.exe')
+,('optimas', 'OptiMAS', '1.4', 'NATIVE', 'tools/optimas/optimas.exe')
+,('breeding_manager', 'Breeding Manager', '3.0.0 Beta 36', 'NATIVE', 'tools/breeding_manager/IBFb/bin/ibfb.exe')
 ,('breeding_view', 'Breeding View', '1.1.0.9195', 'NATIVE', 'tools/breeding_view/Bin/BreedingView.exe')
 ;
 
