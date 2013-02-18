@@ -331,7 +331,7 @@
     </target>
     
     <target name="copy-documentation" description="Copy documentation and sample files">
-        <copy todir="${dist.dir}/cws_docs" overwrite="true" verbose="true">
+        <copy todir="${dist.dir}/documents" overwrite="true" verbose="true">
             <fileset dir="${documentation.dir}">
                 <exclude name="readme.txt"/>
             </fileset>
