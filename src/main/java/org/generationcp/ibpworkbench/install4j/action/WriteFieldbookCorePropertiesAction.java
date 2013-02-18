@@ -20,9 +20,7 @@ public class WriteFieldbookCorePropertiesAction extends AbstractInstallAction{
     
     private static final long serialVersionUID = -615602937530464608L;
     
-    private static final String TEMPLATES_DIR = "\\\\fieldbook\\\\Examples\\\\Templates";
-    private static final String GERMPLASM_LIST_DIR = "\\\\fieldbook\\\\Examples\\\\GermplasmLists";
-    private static final String CROSSES_DIR = "\\\\fieldbook\\\\Examples\\\\IBFieldbookImportCrossSelection";
+    private static final String EXAMPLES_DIR = "\\\\examples";
     
     private static final String IBFB_APPDATA_FOLDER = "/.ibfb/dev/config/Preferences/ibfb/settings";
 
@@ -34,14 +32,11 @@ public class WriteFieldbookCorePropertiesAction extends AbstractInstallAction{
             + "TEMPLATES_DEFAULT_FOLDER=%s\r\n"
             ;
         
-        String toolsPath = new File(context.getInstallationDirectory(), "tools").getAbsolutePath();
-        toolsPath = toolsPath.replaceAll("\\\\", "\\\\\\\\");
+        String installationDir = context.getInstallationDirectory().getAbsolutePath();
+        installationDir = installationDir.replaceAll("\\\\", "\\\\\\\\");
+        String examplesDir = installationDir + EXAMPLES_DIR;
         
-        String crossesDir = toolsPath + CROSSES_DIR;
-        String germplasmListDir = toolsPath + GERMPLASM_LIST_DIR;
-        String templatesDir = toolsPath + TEMPLATES_DIR;
-        
-        String configuration = String.format(format, crossesDir, germplasmListDir, crossesDir, templatesDir);
+        String configuration = String.format(format, examplesDir, examplesDir, examplesDir, examplesDir);
         
         //check if the ibfb folders in APPDATA are present, if not create them
         String appDataDir = System.getenv("APPDATA");
