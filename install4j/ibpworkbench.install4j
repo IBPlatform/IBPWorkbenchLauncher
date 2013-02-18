@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.4" transformSequenceNumber="4">
   <directoryPresets config="../images" />
-  <application name="IBWorkflowSystem" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="ibworkflowsystem" publisher="" publisherWeb="" version="1.1.3.5" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="jdk" jdkName="JDK 1.6">
+  <application name="IBWorkflowSystem" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="ibworkflowsystem" publisher="" publisherWeb="" version="1.1.3.6" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="jdk" jdkName="JDK 1.6">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="./messages.properties" />
       <additionalLanguages>
@@ -16,8 +16,8 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables>
-      <variable name="gcp.dist.dir" value="E:\dist" description="" category="" />
-      <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
+      <variable name="gcp.dist.dir" value="C:\kevinWork\dist" description="" category="" />
+      <variable name="gcp.installer.out.dir" value="C:\kevinWork\packaged" description="" category="" />
       <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
       <variable name="gcp.installation.dir" value="IBWorkflowSystem" description="" category="" />
       <variable name="gcp.application.id" value="1906-8962-3721-2525" description="" category="" />
@@ -31,7 +31,8 @@
     <mountPoints>
       <mountPoint id="269" root="" location="database" mode="755" />
       <mountPoint id="270" root="" location="database/workbench" mode="755" />
-      <mountPoint id="604" root="" location="cws_docs" mode="755" />
+      <mountPoint id="1054" root="" location="documents" mode="755" />
+      <mountPoint id="1055" root="" location="examples" mode="755" />
       <mountPoint id="204" root="" location="images" mode="755" />
       <mountPoint id="605" root="" location="infrastructure" mode="755" />
       <mountPoint id="606" root="" location="infrastructure/tomcat" mode="755" />
@@ -43,7 +44,10 @@
       <dirEntry mountPoint="270" file="${compiler:gcp.dist.dir}/crop_databases/workbench" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="604" file="${compiler:gcp.dist.dir}/cws_docs" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="1054" file="${compiler:gcp.dist.dir}/documents" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="1055" file="${compiler:gcp.dist.dir}/examples" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="204" file="${compiler:gcp.dist.dir}/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
@@ -59,10 +63,12 @@
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/ibpworkbench_launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
     </entries>
     <components>
-      <component name="${i18n:workbench} 1.1.3.4" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
+      <component name="${i18n:workbench} 1.1.3.6" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="database" fileType="regular" />
+          <entry location="documents" fileType="regular" />
+          <entry location="examples" fileType="regular" />
           <entry location="images" fileType="regular" />
           <entry location="infrastructure/tomcat" fileType="regular" />
           <entry location="workspace" fileType="regular" />
@@ -72,7 +78,7 @@
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:breeding_manager} 3.0.0 Beta 35" id="263" customizedId="breeding_manager" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:breeding_manager} 3.0.0 Beta 36" id="263" customizedId="breeding_manager" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/breeding_manager" fileType="regular" />
@@ -86,7 +92,7 @@
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:fieldbook} 3.0.0 Beta 35" id="265" customizedId="fieldbook" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:fieldbook} 3.0.0 Beta 36" id="265" customizedId="fieldbook" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/fieldbook" fileType="regular" />
@@ -100,17 +106,17 @@
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:optimas} 1.3" id="267" customizedId="optimas" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:optimas} 1.4" id="267" customizedId="optimas" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="tools/optimas" fileType="regular" />
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:documentation}" id="209" customizedId="documentation" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="mbdt 1.0.0" id="984" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="cws_docs" fileType="regular" />
+          <entry location="tools/mbdt" fileType="regular" />
         </include>
         <dependencies />
       </component>
@@ -395,7 +401,7 @@
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateDesktopLinkAction">
                       <void property="file">
                         <object class="java.io.File">
-                          <string>ibpworkbench</string>
+                          <string>ibworkbench</string>
                         </object>
                       </void>
                       <void property="name">
@@ -429,6 +435,14 @@
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="org.generationcp.ibpworkbench.install4j.action.InitializeWorkbenchDatabaseAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="937" customizedId="" beanClass="org.generationcp.ibpworkbench.install4j.action.WriteFieldbookCorePropertiesAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="org.generationcp.ibpworkbench.install4j.action.WriteFieldbookCorePropertiesAction" />
                   </java>
                 </serializedBean>
                 <condition />
@@ -790,6 +804,6 @@
     </windows>
   </mediaSets>
   <buildIds buildAll="true" />
-  <buildOptions verbose="false" faster="true" disableSigning="true" debug="false" />
+  <buildOptions verbose="true" faster="true" disableSigning="true" debug="false" />
 </install4j>
 
