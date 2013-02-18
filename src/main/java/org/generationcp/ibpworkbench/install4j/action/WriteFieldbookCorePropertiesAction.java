@@ -34,7 +34,7 @@ public class WriteFieldbookCorePropertiesAction extends AbstractInstallAction{
             + "TEMPLATES_DEFAULT_FOLDER=%s\r\n"
             ;
         
-        String toolsPath = new File(context.getInstallationDirectory(), "tool").getAbsolutePath();
+        String toolsPath = new File(context.getInstallationDirectory(), "tools").getAbsolutePath();
         toolsPath = toolsPath.replaceAll("\\\\", "\\\\\\\\");
         
         String crossesDir = toolsPath + CROSSES_DIR;

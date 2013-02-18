@@ -221,7 +221,7 @@ public class InitializeLocalDatabaseAction extends AbstractInstallAction {
         String centralJdbcString = String.format(jdbcFormat, jdbcHost, jdbcPort, centralDbName);
         String localJdbcString = String.format(jdbcFormat, jdbcHost, jdbcPort, localDbName);
         
-        String toolsPath = new File(context.getInstallationDirectory(), "tool").getAbsolutePath();
+        String toolsPath = new File(context.getInstallationDirectory(), "tools").getAbsolutePath();
         
         String configuration = String.format(format, centralJdbcString, centralUser, centralPassword
                                              , centralJdbcString, centralUser, centralPassword
