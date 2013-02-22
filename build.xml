@@ -39,8 +39,8 @@
     <!-- The directory where the JRE, Tomcat and MySQL zip files are located. -->
     <property name="installers.dir" location="installers"/>
     <property name="jre.zip" location="${installers.dir}/jre.zip"/>
-    <property name="tomcat.zip" location="${installers.dir}/apache-tomcat-7.0.29-windows-x86.zip"/>
-    <property name="tomcat.zip.expanded" value="apache-tomcat-7.0.29"/>
+    <property name="tomcat.zip" location="${installers.dir}/tomcat.zip"/>
+    <property name="tomcat.zip.expanded" value="apache-tomcat-7.0.34"/>
     <property name="mysql.zip" location="${installers.dir}/mysql-5.5.23-win32.zip"/>
     <property name="mysql.zip.expanded" value="mysql-5.5.23-win32"/>
     
@@ -64,12 +64,12 @@
     <!-- Properties used by the "launch4j" task. -->
     <property name="launch4j.dir" location="launch4j"/>
     <property name="images.dir" location="images"/>
-    <property name="launch4j.path" value="C:/Program Files (x86)/Launch4j/launch4jc.exe"/>
+    <property name="launch4j.path" value="C:/Program Files/Launch4j/launch4jc.exe"/>
     
     <!-- The directory where Install4J files are located -->
     <property name="install4j.dir" location="install4j"/>
     
-    <property name="dist.dir" value="E:/dist"/>
+    <property name="dist.dir" value="C:/kevinWork/dist"/>
     <property name="nsis.dir" location="nsis"/>
     
     <!-- The location of the IBDB scripts and central database scripts -->
@@ -88,7 +88,7 @@
     <!-- <property name="version" value="${project.version}" /> -->
 
     <!-- Location of the GCP projects. These are used to build the web apps -->
-    <property name="gdms.dir" value="D:/workspace-efficio/gcp/GDMS"/>
+    <property name="gdms.dir" value="../GDMS"/>
     <property name="middleware.dir" value="../IBPMiddleware"/>
     <property name="study_browser.dir" location="../GermplasmStudyBrowser"/>
     <property name="workbench.dir" location="../ibpworkbench"/>
@@ -293,7 +293,7 @@
     </target>
     
     <target name="build-webapps" description="Build webapps">
-        <ant antfile="${gdms.dir}/build.xml" dir="${gdms.dir}" inheritall="false"/>
+        <!--<ant antfile="${gdms.dir}/build.xml" dir="${gdms.dir}" inheritall="false"/>-->
         <ant antfile="${middleware.dir}/build.xml" dir="${middleware.dir}" inheritall="false"/>
         <ant antfile="${study_browser.dir}/build.xml" dir="${study_browser.dir}" inheritall="false"/>
         <ant antfile="${workbench.dir}/build.xml" dir="${workbench.dir}" inheritall="false"/>
@@ -302,9 +302,11 @@
     <target name="copy-webapps" description="Copy webapps to Tomcat">
         <!-- Copy the web apps to tomcat -->
         <copy todir="${dist.dir}/infrastructure/tomcat/webapps" overwrite="yes" verbose="yes">
-            <fileset dir="${gdms.dir}/target">
+            <!--
+        	<fileset dir="${gdms.dir}/target">
                 <include name="*.war"/>
             </fileset>
+            -->
             <fileset dir="${study_browser.dir}/target">
                 <include name="*.war"/>
             </fileset>

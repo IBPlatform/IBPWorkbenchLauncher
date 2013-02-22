@@ -42,10 +42,7 @@ public class WriteFieldbookCorePropertiesAction extends AbstractInstallAction{
         String appDataDir = System.getenv("APPDATA");
         String ibfbSettingsDir = appDataDir + IBFB_APPDATA_FOLDER;
         
-        if(!(new File(ibfbSettingsDir)).mkdirs()){
-            Util.showErrorMessage(context.getMessage("cannot_create_fieldbook_core_properties_file_folder"));
-            return false;
-        }
+        new File(ibfbSettingsDir).mkdirs();
         
         File corePropertiesFile = new File(ibfbSettingsDir, "core.properties");
         
