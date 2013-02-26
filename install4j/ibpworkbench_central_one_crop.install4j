@@ -17,8 +17,8 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables>
-      <variable name="gcp.dist.dir" value="C:\kevinWork\dist\" description="" category="" />
-      <variable name="gcp.installer.out.dir" value="C:\kevinWork\packaged" description="" category="" />
+      <variable name="gcp.dist.dir" value="E:\dist\" description="" category="" />
+      <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
       <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
       <variable name="gcp.mysql.data.dir" value="data" description="" category="" />
       <variable name="gcp.installation.dir" value="IBWorkflowSystem" description="" category="" />
@@ -196,7 +196,7 @@
           <component id="26" />
         </dependencies>
       </component>
-      <component name="${i18n:lentil_central}" id="1352" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:lentil_central}" id="1352" customizedId="lentil" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
@@ -208,7 +208,7 @@
         </include>
         <dependencies />
       </component>
-      <component name="${i18n:soybean_central}" id="1354" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="${i18n:soybean_central}" id="1354" customizedId="soybean" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="database/central/common" fileType="regular" />
@@ -1107,6 +1107,6 @@
     <mediaSet refId="1347" />
     <mediaSet refId="1356" />
   </buildIds>
-  <buildOptions verbose="true" faster="true" disableSigning="true" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="true" debug="false" />
 </install4j>
 

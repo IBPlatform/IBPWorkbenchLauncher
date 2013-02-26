@@ -15,6 +15,8 @@ public enum Crop {
     ,SORGHUM("sorghum", "ibdb_sorghum_central")
     ,PHASEOLUS("phaseolus", "ibdb_phaseolus_central")
     ,WHEAT("wheat", "ibdb_wheat_central")
+    ,LENTIL("lentil", "ibdb_lentil_central")
+    ,SOYBEAN("soybean", "ibdb_soybean_central")
     ;
     
     private String cropName;
