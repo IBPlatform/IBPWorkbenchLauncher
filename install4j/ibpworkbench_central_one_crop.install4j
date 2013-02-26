@@ -196,6 +196,30 @@
           <component id="26" />
         </dependencies>
       </component>
+      <component name="${i18n:lentil_central}" id="1352" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+        <description />
+        <include all="false">
+          <entry location="database/central/common" fileType="regular" />
+          <entry location="database/central/lentil" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/lentil" fileType="regular" />
+          <entry location="database/local/common" fileType="regular" />
+          <entry location="database/local/lentil" fileType="regular" />
+        </include>
+        <dependencies />
+      </component>
+      <component name="${i18n:soybean_central}" id="1354" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
+        <description />
+        <include all="false">
+          <entry location="database/central/common" fileType="regular" />
+          <entry location="database/central/soybean" fileType="regular" />
+          <entry location="database/central_light/common" fileType="regular" />
+          <entry location="database/central_light/soybean" fileType="regular" />
+          <entry location="database/local/common" fileType="regular" />
+          <entry location="database/local/soybean" fileType="regular" />
+        </include>
+        <dependencies />
+      </component>
     </components>
   </files>
   <launchers />
@@ -1026,9 +1050,62 @@
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
+    <windows name="Lentil" id="1347" customizedId="" mediaFileName="ibp_lentil_central_database_${compiler:sys.platform}_${compiler:sys.version}" installDir="${compiler:gcp.installation.dir}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.6.0_38" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="C:\" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+      <excludedLaunchers />
+      <excludedBeans />
+      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
+      <exclude />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Lentil Central Database" description="" category="" />
+      </variables>
+      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+        <commentFiles />
+        <customAttributes />
+      </autoUpdate>
+      <excludedComponents>
+        <component id="85" />
+        <component id="86" />
+        <component id="88" />
+        <component id="1161" />
+        <component id="89" />
+        <component id="1163" />
+        <component id="87" />
+        <component id="1162" />
+        <component id="93" />
+        <component id="1354" />
+      </excludedComponents>
+      <includedDownloadableComponents />
+    </windows>
+    <windows name="Soybean" id="1356" customizedId="" mediaFileName="ibp_soybean_central_database_${compiler:sys.platform}_${compiler:sys.version}" installDir="${compiler:gcp.installation.dir}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.6.0_38" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="C:\" contentFilesType="1" downloadURL="" verifyIntegrity="true">
+      <excludedLaunchers />
+      <excludedBeans />
+      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
+      <exclude />
+      <variables>
+        <variable name="gcp.installer.name.full" value="IB Soybean Central Database" description="" category="" />
+      </variables>
+      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+        <commentFiles />
+        <customAttributes />
+      </autoUpdate>
+      <excludedComponents>
+        <component id="85" />
+        <component id="86" />
+        <component id="88" />
+        <component id="1161" />
+        <component id="89" />
+        <component id="1163" />
+        <component id="87" />
+        <component id="1162" />
+        <component id="93" />
+        <component id="1352" />
+      </excludedComponents>
+      <includedDownloadableComponents />
+    </windows>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="1252" />
+    <mediaSet refId="1347" />
+    <mediaSet refId="1356" />
   </buildIds>
   <buildOptions verbose="true" faster="true" disableSigning="true" debug="false" />
 </install4j>
