@@ -279,7 +279,7 @@ public abstract class Install4JUtil {
         // you might be limited to 2-3.5G of user level memory per process, so
         // do not set it too high.
         // We set it at 50% of available memory but must be between 8MB to 1GB
-        long innodbBufferPoolSize = Math.max(Math.min(Math.round(ram * 0.50), 1024), 8);
+        long innodbBufferPoolSize = Math.max(Math.min(Math.round(ram * 0.50), 512), 8);
 
         // Number of IO threads to use for async IO operations. This value is
         // hardcoded to 8 on Unix, but on Windows disk I/O may benefit from a
