@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.4" transformSequenceNumber="4">
   <directoryPresets config="../images" />
-  <application name="IBWorkflowSystem" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="ibworkflowsystem" publisher="" publisherWeb="" version="1.1.3.8" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="jdk" jdkName="JDK 1.6">
+  <application name="IBWorkflowSystem" distributionSourceDir="" applicationId="1906-8962-3721-2525" mediaDir="${compiler:gcp.installer.out.dir}" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="false" shrinkRuntime="true" shortName="ibworkflowsystem" publisher="" publisherWeb="" version="1.1.3.7" allPathsRelative="true" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="false" jdkMode="jdk" jdkName="JDK 1.6">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="./messages.properties" />
       <additionalLanguages>
@@ -16,8 +16,8 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables>
-      <variable name="gcp.dist.dir" value="C:\kevinWork\dist" description="" category="" />
-      <variable name="gcp.installer.out.dir" value="C:\kevinWork\packaged" description="" category="" />
+      <variable name="gcp.dist.dir" value="E:\dist" description="" category="" />
+      <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
       <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
       <variable name="gcp.installation.dir" value="IBWorkflowSystem" description="" category="" />
       <variable name="gcp.application.id" value="1906-8962-3721-2525" description="" category="" />
@@ -63,7 +63,7 @@
       <fileEntry mountPoint="24" file="${compiler:gcp.dist.dir}/ibpworkbench_launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
     </entries>
     <components>
-      <component name="${i18n:workbench} 1.1.3.6" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
+      <component name="${i18n:workbench} 1.1.3.7" id="208" customizedId="workbench" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
         <description />
         <include all="false">
           <entry location="database" fileType="regular" />
@@ -71,6 +71,7 @@
           <entry location="examples" fileType="regular" />
           <entry location="images" fileType="regular" />
           <entry location="infrastructure/tomcat" fileType="regular" />
+          <entry location="tools/graphviz" fileType="regular" />
           <entry location="workspace" fileType="regular" />
           <entry location="first_run" fileType="regular" />
           <entry location="ibpworkbench_launcher.jar" fileType="regular" />
@@ -804,6 +805,6 @@
     </windows>
   </mediaSets>
   <buildIds buildAll="true" />
-  <buildOptions verbose="true" faster="true" disableSigning="true" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="true" debug="false" />
 </install4j>
 

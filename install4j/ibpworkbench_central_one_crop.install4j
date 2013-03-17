@@ -17,8 +17,8 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables>
-      <variable name="gcp.dist.dir" value="C:\kevinWork\dist\" description="" category="" />
-      <variable name="gcp.installer.out.dir" value="C:\kevinWork\packaged" description="" category="" />
+      <variable name="gcp.dist.dir" value="E:\dist\" description="" category="" />
+      <variable name="gcp.installer.out.dir" value="E:\" description="" category="" />
       <variable name="gcp.mysql.dir" value="infrastructure/mysql/" description="" category="" />
       <variable name="gcp.mysql.data.dir" value="data" description="" category="" />
       <variable name="gcp.installation.dir" value="IBWorkflowSystem" description="" category="" />
@@ -1122,12 +1122,8 @@
     </windows>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="970" />
-    <mediaSet refId="1238" />
-    <mediaSet refId="1242" />
-    <mediaSet refId="1248" />
-    <mediaSet refId="1252" />
+    <mediaSet refId="1250" />
   </buildIds>
-  <buildOptions verbose="true" faster="true" disableSigning="true" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="true" debug="false" />
 </install4j>
 
